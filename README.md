@@ -1,1 +1,1 @@
-# landmark_recornition
+# landmark_recognition
