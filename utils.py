@@ -68,14 +68,14 @@ def read_zalo(base_dir, json_file, max = 0):
 
         print(cate, " > ", filename)
 
-        if random.uniform(0.0, 1.0) > 0.05:
-            filenames.append(filename)
-            labels.append(cate)
-            count+=1
-        else:
-            eval_filenames.append(filename)
-            eval_labels.append(cate)
-            eval_count+=1
+        # if random.uniform(0.0, 1.0) > 0.05:
+        filenames.append(filename)
+        labels.append(cate)
+        count+=1
+        # else:
+        #     eval_filenames.append(filename)
+        #     eval_labels.append(cate)
+        #     eval_count+=1
         if max > 0 and count >= max:
             break
 
@@ -86,7 +86,7 @@ def read_zalo(base_dir, json_file, max = 0):
 # From python basic tutorials
 # Reads an image from a file, decodes it into a dense tensor, and resizes it
 # to a fixed shape.
-def _parse_function(filename, label):
+def _parse_function(filename, label): 
   image_string = tf.read_file(filename)
   image_decoded = tf.image.decode_jpeg(image_string, channels=3)
 #   image_decoded = tf.image.rgb_to_grayscale(image_decoded)

@@ -13,13 +13,14 @@ data_dir = './data/TrainVal/'
 
 print('Loading data')
 # A vector of filenames.
-filenames, labels, count, eval_filenames, eval_labels, eval_count = utils.read_zalo(data_dir, json_file, 25)
+filenames, labels, count, eval_filenames, eval_labels, eval_count = utils.read_zalo(data_dir, json_file)
 
 print('Creating dataset')
+labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function)
-# dataset = dataset.repeat(5)
-# dataset = dataset.batch(4)
+dataset = dataset.batch(16)
+dataset = dataset.repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -63,9 +64,9 @@ print(dataset.output_shapes)
 # plt.show()
 
 model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Flatten(),
     keras.layers.Dense(128, activation=tf.nn.relu),
-    keras.layers.Dense(10, activation=tf.nn.softmax)
+    keras.layers.Dense(103, activation=tf.nn.softmax)
 ])
 
 model.compile(optimizer=tf.train.AdamOptimizer(), 
@@ -74,6 +75,6 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
 
 model.fit(dataset, epochs=5, steps_per_epoch=30)
 
-test_loss, test_acc = model.evaluate(test_images, test_labels)
+eval_loss, eval_acc = model.evaluate(eval_filenames, eval_labels)
 
-print('Test accuracy:', test_acc)
+print('Test accuracy:', eval_acc)
