@@ -29,9 +29,9 @@ plt.colorbar()
 plt.grid(False)
 # plt.show()
 
-# train_images = train_images / 255.0
+train_images = train_images / 255.0
 
-# test_images = test_images / 255.0
+test_images = test_images / 255.0
 
 plt.figure(figsize=(20,10))
 for i in range(50):
@@ -44,32 +44,15 @@ for i in range(50):
 
 # plt.show()
 
-def _parse_function(image, label):
-    image_decoded = tf.reshape(image, [28,28,1])
-    print(image_decoded.shape)
-    image_resized = tf.image.resize_images(image_decoded, [24, 24]) / 255.0
-    return image_resized, label
-
-def _parse_function2(image, label):
-    label_decoded = tf.convert_to_tensor(label, dtype=tf.int64)
-    image_decoded = tf.reshape(image, [10000, 28,28,1])
-    print(image_decoded.shape)
-    image_resized = tf.image.resize_images(image_decoded, [24, 24]) / 255.0
-    return image_resized, label_decoded
-
-train_labels = tf.convert_to_tensor(train_labels, dtype=tf.int64)
-dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-dataset = dataset.map(_parse_function)
-dataset = dataset.batch(1024).repeat()
-
-test_images2, test_labels2 = _parse_function2(test_images, test_labels)
+# train_images = tf.reshape(train_images, [-1,28,28,1])
+# train_labels = tf.convert_to_tensor(train_labels, dtype=tf.int32)
 
 model = keras.Sequential([
-    keras.layers.Conv2D(filters=8, kernel_size=[3, 3], padding="same", activation=tf.nn.relu),
-    keras.layers.MaxPool2D(pool_size=[2, 2], strides=2),
-    keras.layers.Conv2D(filters=16, kernel_size=[3, 3], padding="same", activation=tf.nn.relu),
-    keras.layers.MaxPool2D(pool_size=[2, 2], strides=2),
-    keras.layers.Flatten(input_shape=(7, 7, 16)),
+    # keras.layers.Conv2D(filters=32, kernel_size=[5, 5], padding="same", activation=tf.nn.relu),
+    # keras.layers.MaxPool2D(pool_size=[2, 2], strides=2),
+    # keras.layers.Conv2D(filters=64, kernel_size=[5, 5], padding="same", activation=tf.nn.relu),
+    # keras.layers.MaxPool2D(pool_size=[2, 2], strides=2),
+    keras.layers.Flatten(input_shape=(28, 28)),
     keras.layers.Dense(1024, activation=tf.nn.relu),
     keras.layers.Dense(10, activation=tf.nn.softmax)
 ])
@@ -78,13 +61,13 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(dataset, epochs=50, steps_per_epoch=30)
+model.fit(train_images, train_labels, epochs=10, steps_per_epoch=10)
 
-test_loss, test_acc = model.evaluate(test_images2, test_labels2, steps=3)
+test_loss, test_acc = model.evaluate(test_images, test_labels, steps=3)
 
 print('Test accuracy:', test_acc)
 
-predictions = model.predict(test_images2, steps=3)
+predictions = model.predict(test_images, steps=3)
 
 print(predictions[0])
 
@@ -138,7 +121,7 @@ for i in range(num_images):
 plt.show()
 
 # # Grab an image from the test dataset
-# img2 = test_images2[0]
+# img2 = test_images[0]
 # img = test_images[0]
 
 # print(img.shape)
