@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
+import random
 
 print(tf.VERSION)
 print(tf.keras.__version__)
@@ -12,7 +13,7 @@ from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 import utils
 
-# tf.enable_eager_execution()
+tf.enable_eager_execution()
 
 json_file = './data/train_val2018.json'
 data_dir = './data/TrainVal/'
@@ -21,11 +22,23 @@ print('Loading data')
 # A vector of filenames.
 filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo(data_dir, json_file)
 
+# plt.figure(figsize=(20,10))
+# for i in range(50):
+#     j = random.randint(0,70000)
+#     image, label = utils._parse_function(filenames[j], labels[j])
+#     plt.subplot(5,10,i+1)
+#     plt.xticks([])
+#     plt.yticks([])
+#     plt.grid(False)
+#     plt.imshow(image.numpy(), cmap=plt.cm.binary)
+#     plt.xlabel(label)
+# plt.show()
+
 print('Creating dataset', count)
 # labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function)
-dataset = dataset.batch(128).repeat()
+dataset = dataset.shuffle(10000).batch(128).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -64,11 +77,11 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # compile the model (should be done *after* setting layers to non-trainable)
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy')
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=100)
+model.fit(dataset, epochs=10, steps_per_epoch=500)
 
             # ,validation_data=val_dataset,
             # validation_steps=3)

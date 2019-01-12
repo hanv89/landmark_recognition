@@ -81,8 +81,7 @@ def read_zalo(base_dir, json_file, max = 0):
             val_count+=1
         if max > 0 and count >= max:
             break
-
-        
+            
     return filenames, labels, count, val_filenames, val_labels, val_count
 
 
@@ -92,5 +91,5 @@ def read_zalo(base_dir, json_file, max = 0):
 def _parse_function(filename, label):
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_jpeg(image_string, channels=3)
-    image_resized = tf.image.resize_images(image_decoded, [240, 240])
+    image_resized = tf.image.resize_images(image_decoded, [240, 240]) / 255.0
     return image_resized, label
