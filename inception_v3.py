@@ -75,7 +75,7 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # compile the model (should be done *after* setting layers to non-trainable)
-model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.sparse_top_3_categorical_accuracy])
+model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
 # train the model on the new data for a few epochs
 
@@ -100,7 +100,7 @@ for layer in model.layers[249:]:
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
-model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.sparse_top_3_categorical_accuracy])
+model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers

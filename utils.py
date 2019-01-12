@@ -116,5 +116,5 @@ def unison_shuffled_copies(a, b):
     p = numpy.random.permutation(len(a))
     return a[p], b[p]
 
-def sparse_top_3_categorical_accuracy(y_true, y_pred):
+def top_3_accuracy(y_true, y_pred):
     return tf.keras.metrics.sparse_top_k_categorical_accuracy(y_true, y_pred, k=3) 
