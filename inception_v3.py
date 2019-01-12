@@ -81,7 +81,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=500)
+model.fit(dataset, epochs=10, steps_per_epoch=200)
 
             # ,validation_data=val_dataset,
             # validation_steps=3)
