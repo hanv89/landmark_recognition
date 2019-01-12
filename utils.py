@@ -83,7 +83,7 @@ def read_zalo(base_dir, json_file, max = 0):
         if max > 0 and count >= max:
             break
     
-    # filenames, labels = unison_shuffled_copies(filenames, labels)
+    filenames, labels = unison_shuffled_copies(filenames, labels)
 
     return filenames, labels, count, val_filenames, val_labels, val_count
 

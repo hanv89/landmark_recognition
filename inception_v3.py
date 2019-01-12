@@ -81,10 +81,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=100)
-
-            # ,validation_data=val_dataset,
-            # validation_steps=3)
+model.fit(dataset, epochs=10, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=5)
 
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
