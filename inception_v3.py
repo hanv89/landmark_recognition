@@ -22,7 +22,7 @@ print('Creating dataset', count)
 # labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function)
-dataset = dataset.batch(128).repeat()
+dataset = dataset.batch(32).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -31,7 +31,7 @@ print('Creating val dataset', val_count)
 # val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
 val_dataset = val_dataset.map(utils._parse_function)
-val_dataset = val_dataset.batch(128).repeat()
+val_dataset = val_dataset.batch(32).repeat()
 
 print(val_dataset.output_types)
 print(val_dataset.output_shapes)
@@ -61,7 +61,7 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # compile the model (should be done *after* setting layers to non-trainable)
-model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
 
 # train the model on the new data for a few epochs
 
