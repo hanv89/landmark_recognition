@@ -83,9 +83,9 @@ parallel_model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categori
 
 # train the model on the new data for a few epochs
 
-parallel_model.fit(dataset, epochs=1, steps_per_epoch=1, validation_data=val_dataset, validation_steps=3)
+parallel_model.fit(dataset, epochs=50, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
-# parallel_model.save('my_inception_v3.h5')
+parallel_model.save('my_inception_v3.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
 # and train the remaining top layers.
@@ -112,6 +112,6 @@ parallel_model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
 
-parallel_model.fit(dataset, epochs=1, steps_per_epoch=1, validation_data=val_dataset, validation_steps=3)
+parallel_model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
 parallel_model.save('my_inception_v3_fulltrain.h5')
