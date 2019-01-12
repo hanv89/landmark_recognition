@@ -81,7 +81,9 @@ def read_zalo(base_dir, json_file, max = 0):
             val_count+=1
         if max > 0 and count >= max:
             break
-            
+    
+    filenames, labels = unison_shuffled_copies(filenames, labels)
+
     return filenames, labels, count, val_filenames, val_labels, val_count
 
 
@@ -93,3 +95,8 @@ def _parse_function(filename, label):
     image_decoded = tf.image.decode_jpeg(image_string, channels=3)
     image_resized = tf.image.resize_images(image_decoded, [240, 240]) / 255.0
     return image_resized, label
+
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    p = numpy.random.permutation(len(a))
+    return a[p], b[p]
