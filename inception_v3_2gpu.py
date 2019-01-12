@@ -97,13 +97,16 @@ for i, layer in enumerate(base_model.layers):
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-for layer in parallel_model.layers[:249]:
+for layer in base_model.layers[:249]:
    layer.trainable = False
-for layer in parallel_model.layers[249:]:
+for layer in base_model.layers[249:]:
    layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
+
+parallel_model = multi_gpu_model(model, gpus=2)
+
 parallel_model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
