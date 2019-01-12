@@ -112,6 +112,6 @@ parallel_model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
 
-parallel_model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+parallel_model.fit(dataset, epochs=1, steps_per_epoch=1, validation_data=val_dataset, validation_steps=3)
 
 parallel_model.save('my_inception_v3_fulltrain.h5')
