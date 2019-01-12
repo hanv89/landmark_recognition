@@ -60,7 +60,7 @@ base_model = ResNet50(input_shape=(240, 240, 3), weights='imagenet', include_top
 
 # add a global spatial average pooling layer
 x = base_model.output
-x = GlobalAveragePooling2D()(x)
+# x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
 x = Dense(1024, activation='relu')(x)
 # and a logistic layer -- let's say we have 200 classes
