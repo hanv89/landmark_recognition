@@ -40,7 +40,7 @@ print('Creating dataset', count)
 labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function299)
-dataset = dataset.batch(64).repeat()
+dataset = dataset.batch(32).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -49,7 +49,7 @@ print('Creating val dataset', val_count)
 val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
 val_dataset = val_dataset.map(utils._parse_function299)
-val_dataset = val_dataset.batch(64).repeat()
+val_dataset = val_dataset.batch(32).repeat()
 
 print(val_dataset.output_types)
 print(val_dataset.output_shapes)
@@ -82,7 +82,7 @@ parallel_model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categori
 
 # train the model on the new data for a few epochs
 
-parallel_model.fit(dataset, epochs=10, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+parallel_model.fit(dataset, epochs=10, steps_per_epoch=100, validation_data=val_dataset, validation_steps=3)
 
 parallel_model.save('my_inception_v3.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
@@ -96,16 +96,19 @@ for i, layer in enumerate(base_model.layers):
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-# for layer in model.layers[:249]:
-#    layer.trainable = False
-# for layer in model.layers[249:]:
-#    layer.trainable = True
+for layer in model.layers[:249]:
+   layer.trainable = False
+for layer in model.layers[249:]:
+   layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
-# from keras.optimizers import SGD
-# model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
+from keras.optimizers import SGD
+model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-# model.fit_generator(...)
+
+parallel_model.fit(dataset, epochs=10, steps_per_epoch=100, validation_data=val_dataset, validation_steps=3)
+
+parallel_model.save('my_inception_v3_fulltrain.h5')
