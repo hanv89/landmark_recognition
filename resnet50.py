@@ -53,10 +53,10 @@ print(val_dataset.output_types)
 print(val_dataset.output_shapes)
 
 # this could also be the output a different Keras model or layer
-input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
+# input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
 
 # create the base pre-trained model
-base_model = ResNet50(input_tensor=input_tensor, weights='imagenet', include_top=True)
+base_model = ResNet50(input_shape=(240, 240, 3), weights='imagenet', include_top=False)
 
 # add a global spatial average pooling layer
 x = base_model.output
