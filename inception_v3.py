@@ -79,7 +79,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=10, validation_data=val_dataset, validation_steps=3)
+model.fit(dataset, epochs=50, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
 # model.save('my_inception_v3.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
@@ -104,6 +104,6 @@ model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentu
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-model.fit(dataset, epochs=10, steps_per_epoch=10, validation_data=val_dataset, validation_steps=3)
+model.fit(dataset, epochs=200, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
 # model.save('my_inception_v3_fulltrain.h5')
