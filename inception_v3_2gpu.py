@@ -7,6 +7,7 @@ print(tf.keras.__version__)
 
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.preprocessing import image
+from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
 from tensorflow.keras.utils import multi_gpu_model
@@ -82,9 +83,9 @@ parallel_model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categori
 
 # train the model on the new data for a few epochs
 
-parallel_model.fit(dataset, epochs=10, steps_per_epoch=100, validation_data=val_dataset, validation_steps=3)
+parallel_model.fit(dataset, epochs=5, steps_per_epoch=5, validation_data=val_dataset, validation_steps=3)
 
-parallel_model.save('my_inception_v3.h5')
+# parallel_model.save('my_inception_v3.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
 # and train the remaining top layers.
@@ -103,7 +104,6 @@ for layer in parallel_model.layers[249:]:
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
-from keras.optimizers import SGD
 parallel_model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
