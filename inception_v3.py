@@ -35,7 +35,7 @@ filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo
 # plt.show()
 
 print('Creating dataset', count)
-# labels = tf.convert_to_tensor(labels, dtype=tf.int64)
+labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function299)
 dataset = dataset.batch(64).repeat()
@@ -44,7 +44,7 @@ print(dataset.output_types)
 print(dataset.output_shapes)
 
 print('Creating val dataset', val_count)
-# val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
+val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
 val_dataset = val_dataset.map(utils._parse_function299)
 val_dataset = val_dataset.batch(64).repeat()
@@ -79,7 +79,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=5)
+model.fit(dataset, epochs=10, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
 model.save('my_inception_v3.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
