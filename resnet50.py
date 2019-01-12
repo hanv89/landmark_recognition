@@ -5,7 +5,7 @@ import random
 print(tf.VERSION)
 print(tf.keras.__version__)
 
-from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
@@ -56,7 +56,7 @@ print(val_dataset.output_shapes)
 input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
 
 # create the base pre-trained model
-base_model = InceptionV3(input_tensor=input_tensor, weights='imagenet', include_top=True)
+base_model = ResNet50(input_tensor=input_tensor, weights='imagenet', include_top=True)
 
 # add a global spatial average pooling layer
 x = base_model.output
