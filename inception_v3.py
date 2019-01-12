@@ -37,8 +37,9 @@ filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo
 print('Creating dataset', count)
 # labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
+dataset = dataset.shuffle(10000)
 dataset = dataset.map(utils._parse_function)
-dataset = dataset.shuffle(10000).batch(128).repeat()
+dataset = dataset.batch(128).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
