@@ -37,8 +37,8 @@ filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo
 print('Creating dataset', count)
 # labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
-dataset = dataset.map(utils._parse_function240)
-dataset = dataset.batch(64).repeat()
+dataset = dataset.map(utils._parse_function224)
+dataset = dataset.batch(32).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -46,8 +46,8 @@ print(dataset.output_shapes)
 print('Creating val dataset', val_count)
 # val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
-val_dataset = val_dataset.map(utils._parse_function240)
-val_dataset = val_dataset.batch(64).repeat()
+val_dataset = val_dataset.map(utils._parse_function224)
+val_dataset = val_dataset.batch(32).repeat()
 
 print(val_dataset.output_types)
 print(val_dataset.output_shapes)
@@ -56,11 +56,11 @@ print(val_dataset.output_shapes)
 # input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
 
 # create the base pre-trained model
-base_model = ResNet50(input_shape=(240, 240, 3), weights='imagenet', include_top=False)
+base_model = ResNet50(weights='imagenet', include_top=False)
 
 # add a global spatial average pooling layer
 x = base_model.output
-# x = GlobalAveragePooling2D()(x)
+x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
 x = Dense(1024, activation='relu')(x)
 # and a logistic layer -- let's say we have 200 classes

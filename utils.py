@@ -99,6 +99,12 @@ def _parse_function(filename, label, size=240):
 
 def _parse_function240(filename, label):
     return _parse_function(filename, label, 240)
+
+def _parse_function224(filename, label):
+    return _parse_function(filename, label, 224)
+
+def _parse_function299(filename, label):
+    return _parse_function(filename, label, 299)
     
 def _parse_function28(filename, label):
     return _parse_function(filename, label, 28)
