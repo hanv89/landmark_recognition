@@ -91,11 +91,17 @@ def read_zalo(base_dir, json_file, max = 0):
 # From python basic tutorials
 # Reads an image from a file, decodes it into a dense tensor, and resizes it
 # to a fixed shape.
-def _parse_function(filename, label):
+def _parse_function(filename, label, size=240):
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_jpeg(image_string, channels=3)
-    image_resized = tf.image.resize_images(image_decoded, [240, 240]) / 255.0
+    image_resized = tf.image.resize_images(image_decoded, [size, size]) / 255.0
     return image_resized, label
+
+def _parse_function240(filename, label):
+    return _parse_function(filename, label, 240)
+    
+def _parse_function28(filename, label):
+    return _parse_function(filename, label, 28)
 
 def unison_shuffled_copies(a, b):
     a = numpy.array(a)
@@ -103,3 +109,6 @@ def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
     p = numpy.random.permutation(len(a))
     return a[p], b[p]
+
+def sparse_top_3_categorical_accuracy(y_true, y_pred):
+    return tf.keras.metrics.sparse_top_k_categorical_accuracy(y_true, y_pred, k=3) 

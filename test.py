@@ -1,6 +1,5 @@
 import tensorflow as tf
 from tensorflow import keras
-
 # Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,7 +17,7 @@ filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo
 print('Creating dataset', count)
 labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
-dataset = dataset.map(utils._parse_function)
+dataset = dataset.map(utils._parse_function28)
 dataset = dataset.batch(128).repeat()
 
 print(dataset.output_types)
@@ -27,7 +26,7 @@ print(dataset.output_shapes)
 print('Creating val dataset', val_count)
 val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
-val_dataset = val_dataset.map(utils._parse_function)
+val_dataset = val_dataset.map(utils._parse_function28)
 val_dataset = val_dataset.batch(128).repeat()
 
 print(val_dataset.output_types)
@@ -71,6 +70,9 @@ print(val_dataset.output_shapes)
 # plt.show()
 
 model = keras.Sequential([
+    # keras.layers.Flatten(input_shape=(28, 28)),
+    # keras.layers.Dense(1024, activation=tf.nn.relu)
+
     keras.layers.Conv2D(filters=32, kernel_size=[5, 5], padding="same", activation=tf.nn.relu),
     keras.layers.MaxPool2D(pool_size=[2, 2], strides=2),
     keras.layers.Conv2D(filters=64, kernel_size=[5, 5], padding="same", activation=tf.nn.relu),
@@ -81,8 +83,10 @@ model = keras.Sequential([
 ])
 
 model.compile(optimizer=tf.train.AdamOptimizer(), 
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy' 
+                        # ,keras.metrics.sparse_top_k_categorical_accuracy
+                ])
 
 model.fit(dataset, epochs=10, steps_per_epoch=30,
             validation_data=val_dataset,
