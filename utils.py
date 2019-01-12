@@ -69,7 +69,7 @@ def read_zalo(base_dir, json_file, max = 0):
         if imghdr.what(filename) not in ['jpeg', 'png', 'gif']: # invalid image files
             continue
 
-        print(cate, " > ", filename)
+        # print(cate, " > ", filename)
 
         if random.uniform(0.0, 1.0) > 0.1:
             filenames.append(filename)
