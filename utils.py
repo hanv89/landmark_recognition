@@ -3,6 +3,7 @@ import json
 import os
 import random
 import imghdr
+import numpy
 
 def get_fns_lbs(base_dir, json_file, pickle_fn = 'mydata.p', force = False):    
     pickle_fn = base_dir + pickle_fn 
@@ -97,6 +98,8 @@ def _parse_function(filename, label):
     return image_resized, label
 
 def unison_shuffled_copies(a, b):
+    a = numpy.array(a)
+    b = numpy.array(b)
     assert len(a) == len(b)
     p = numpy.random.permutation(len(a))
     return a[p], b[p]
