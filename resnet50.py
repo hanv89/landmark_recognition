@@ -75,11 +75,11 @@ for layer in base_model.layers:
     layer.trainable = False
 
 # compile the model (should be done *after* setting layers to non-trainable)
-model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+model.fit(dataset, epochs=10, steps_per_epoch=10, validation_data=val_dataset, validation_steps=3)
 
 model.save('my_resnet50.h5')
 
