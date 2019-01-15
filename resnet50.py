@@ -85,9 +85,9 @@ callbacks = [
   tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/2019011/logs')
 ]
 
-history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
-model.save('./my_resnet50/20190115/20190115-resnet-model.h5')
+model.save('my_resnet50/20190115/resnet-model-20190115.h5')
 
 print('val_acc: ',max(history.history['val_acc']))
 print('val_loss: ',min(history.history['val_loss']))
@@ -126,7 +126,7 @@ callbacks = [
 
 history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
-model.save('./my_resnet50/20190115/20190115-resnet-remodel.h5')
+model.save('my_resnet50/20190115/resnet-remodel-20190115.h5')
 
 print('val_acc: ',max(history.history['val_acc']))
 print('val_loss: ',min(history.history['val_loss']))
