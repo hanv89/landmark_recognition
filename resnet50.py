@@ -85,7 +85,7 @@ callbacks = [
   tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/2019011/logs')
 ]
 
-history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
 model.save('my_resnet50/20190115/resnet-model-20190115.h5')
 
@@ -121,7 +121,7 @@ callbacks = [
   # Interrupt training if `val_loss` stops improving for over 2 epochs
   tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
   # Write TensorBoard logs to `./logs` directory
-  tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/2019011/logs')
+  tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/20190115/logs')
 ]
 
 history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
