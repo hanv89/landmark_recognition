@@ -13,7 +13,7 @@ from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 import utils
 
-tf.enable_eager_execution()
+# tf.enable_eager_execution()
 
 json_file = './data/train_val2018.json'
 data_dir = './data/TrainVal/'
@@ -23,22 +23,21 @@ print('Loading data')
 filenames, labels, count, val_filenames, val_labels, val_count = utils.read_zalo(data_dir, json_file)
 
 # plt.figure(figsize=(20,10))
-# for i in range(50):
-#     j = random.randint(0,70000)
-#     image, label = utils._parse_function(filenames[j], labels[j])
-#     plt.subplot(5,10,i+1)
+# for i in range(25):
+#     image, label = utils._parse_function(filenames[i], labels[i])
+#     plt.subplot(5,5,i+1)
 #     plt.xticks([])
 #     plt.yticks([])
 #     plt.grid(False)
 #     plt.imshow(image.numpy(), cmap=plt.cm.binary)
-#     plt.xlabel(label)
+#     plt.xlabel(filenames[i] + ":" + str(label))
 # plt.show()
 
 print('Creating dataset', count)
 labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function224)
-dataset = dataset.batch(32).repeat()
+dataset = dataset.batch(64).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -47,7 +46,7 @@ print('Creating val dataset', val_count)
 val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
 val_dataset = val_dataset.map(utils._parse_function224)
-val_dataset = val_dataset.batch(32).repeat()
+val_dataset = val_dataset.batch(64).repeat()
 
 print(val_dataset.output_types)
 print(val_dataset.output_shapes)
@@ -79,7 +78,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=10, steps_per_epoch=10, validation_data=val_dataset, validation_steps=3)
+model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
 
 model.save('my_resnet50-20190115.h5')
 
@@ -94,9 +93,9 @@ for i, layer in enumerate(base_model.layers):
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-for layer in model.layers[:122]:
+for layer in model.layers[:123]:
    layer.trainable = False
-for layer in model.layers[122:]:
+for layer in model.layers[123:]:
    layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
