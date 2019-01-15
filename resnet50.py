@@ -81,7 +81,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 model.fit(dataset, epochs=10, steps_per_epoch=10, validation_data=val_dataset, validation_steps=3)
 
-model.save('my_resnet50.h5')
+model.save('my_resnet50-20190115.h5')
 
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
@@ -94,16 +94,17 @@ for i, layer in enumerate(base_model.layers):
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-# for layer in model.layers[:249]:
-#    layer.trainable = False
-# for layer in model.layers[249:]:
-#    layer.trainable = True
+for layer in model.layers[:122]:
+   layer.trainable = False
+for layer in model.layers[122:]:
+   layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
-# from keras.optimizers import SGD
-# model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
+model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-# model.fit_generator(...)
+model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+
+model.save('my_resnet50_fulltrain-20190115.h5')
