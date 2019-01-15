@@ -1,6 +1,5 @@
 import tensorflow as tf
 from tensorflow import keras
-import random
 
 print(tf.VERSION)
 print(tf.keras.__version__)
@@ -12,6 +11,7 @@ from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
 from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 import utils
+import random
 
 # tf.enable_eager_execution()
 
@@ -78,9 +78,22 @@ model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_cross
 
 # train the model on the new data for a few epochs
 
-model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+callbacks = [
+  # Interrupt training if `val_loss` stops improving for over 2 epochs
+  tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
+  # Write TensorBoard logs to `./logs` directory
+  tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/2019011/logs')
+]
 
-model.save('my_resnet50-20190115.h5')
+history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+
+model.save('./my_resnet50/20190115/20190115-resnet-model.h5')
+
+print('val_acc: ',max(history.history['val_acc']))
+print('val_loss: ',min(history.history['val_loss']))
+print('train_acc: ',max(history.history['acc']))
+print('train_loss: ',min(history.history['loss']))
+print("train/val loss ratio: ", min(history.history['loss'])/min(history.history['val_loss']))
 
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
@@ -104,6 +117,19 @@ model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentu
 
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+callbacks = [
+  # Interrupt training if `val_loss` stops improving for over 2 epochs
+  tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
+  # Write TensorBoard logs to `./logs` directory
+  tf.keras.callbacks.TensorBoard(log_dir='./my_resnet50/2019011/logs')
+]
 
-model.save('my_resnet50_fulltrain-20190115.h5')
+history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+
+model.save('./my_resnet50/20190115/20190115-resnet-remodel.h5')
+
+print('val_acc: ',max(history.history['val_acc']))
+print('val_loss: ',min(history.history['val_loss']))
+print('train_acc: ',max(history.history['acc']))
+print('train_loss: ',min(history.history['loss']))
+print("train/val loss ratio: ", min(history.history['loss'])/min(history.history['val_loss']))
