@@ -13,7 +13,7 @@ from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 import utils
 
-tf.enable_eager_execution()
+# tf.enable_eager_execution()
 
 json_file = './data/train_val2018.json'
 data_dir = './data/TrainVal/'
@@ -77,11 +77,17 @@ for layer in base_model.layers:
 # compile the model (should be done *after* setting layers to non-trainable)
 model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
+
+callbacks = [
+  # Interrupt training if `val_loss` stops improving for over 2 epochs
+  tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
+  # Write TensorBoard logs to `./logs` directory
+  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190116/logs')
+]
 # train the model on the new data for a few epochs
+history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
-model.fit(dataset, epochs=50, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
-
-model.save('my_inception_v3-20190112.h5')
+model.save('my_inception_v3/20190116/inception_v3-model-20190116.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
 # and train the remaining top layers.
@@ -102,8 +108,20 @@ for layer in model.layers[249:]:
 # we use SGD with a low learning rate
 model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
+callbacks = [
+  # Interrupt training if `val_loss` stops improving for over 2 epochs
+  tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
+  # Write TensorBoard logs to `./logs` directory
+  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190116/relogs')
+]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-model.fit(dataset, epochs=200, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3)
+history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
-model.save('my_inception_v3_fulltrain-20190112.h5')
+model.save('my_inception_v3/20190116/inception_v3-remodel-20190116.h5')
+
+print('val_acc: ',max(history.history['val_acc']))
+print('val_loss: ',min(history.history['val_loss']))
+print('train_acc: ',max(history.history['acc']))
+print('train_loss: ',min(history.history['loss']))
+print("train/val loss ratio: ", min(history.history['loss'])/min(history.history['val_loss']))
