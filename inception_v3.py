@@ -38,7 +38,7 @@ print('Creating dataset', count)
 labels = tf.convert_to_tensor(labels, dtype=tf.int64)
 dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(utils._parse_function299)
-dataset = dataset.batch(32).repeat()
+dataset = dataset.batch(64).repeat()
 
 print(dataset.output_types)
 print(dataset.output_shapes)
@@ -47,7 +47,7 @@ print('Creating val dataset', val_count)
 val_labels = tf.convert_to_tensor(val_labels, dtype=tf.int64)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_filenames, val_labels))
 val_dataset = val_dataset.map(utils._parse_function299)
-val_dataset = val_dataset.batch(32).repeat()
+val_dataset = val_dataset.batch(64).repeat()
 
 print(val_dataset.output_types)
 print(val_dataset.output_shapes)
@@ -85,7 +85,7 @@ callbacks = [
   tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190116/logs')
 ]
 # train the model on the new data for a few epochs
-history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
 model.save('my_inception_v3/20190116/inception_v3-model-20190116.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
@@ -94,8 +94,8 @@ model.save('my_inception_v3/20190116/inception_v3-model-20190116.h5')
 
 # let's visualize layer names and layer indices to see how many layers
 # we should freeze:
-for i, layer in enumerate(base_model.layers):
-   print(i, layer.name)
+# for i, layer in enumerate(base_model.layers):
+#    print(i, layer.name)
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
@@ -116,7 +116,7 @@ callbacks = [
 ]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-history = model.fit(dataset, epochs=2, steps_per_epoch=2, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
+history = model.fit(dataset, epochs=100, steps_per_epoch=1000, validation_data=val_dataset, validation_steps=3, callbacks=callbacks)
 
 model.save('my_inception_v3/20190116/inception_v3-remodel-20190116.h5')
 
