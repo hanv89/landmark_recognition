@@ -79,8 +79,8 @@ callbacks = [
   tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190119/logs')
 ]
 # train the model on the new data for a few epochs
-history = model.fit(train_generator, epochs=2, steps_per_epoch=10, 
-  validation_data=validation_generator, validation_steps=1, 
+history = model.fit(train_generator, epochs=20, steps_per_epoch=1000, 
+  validation_data=validation_generator, validation_steps=100, 
   callbacks=callbacks)
 
 print('max_val_acc: ',max(history.history['val_acc']))
@@ -122,8 +122,8 @@ callbacks = [
 ]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-history = model.fit(train_generator, epochs=2, steps_per_epoch=10, 
-  validation_data=validation_generator, validation_steps=1, 
+history = model.fit(train_generator, epochs=20, steps_per_epoch=1000, 
+  validation_data=validation_generator, validation_steps=100, 
   callbacks=callbacks)
 
 model.save('my_inception_v3/20190119/inception_v3-remodel-20190119.h5')
