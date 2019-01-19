@@ -65,9 +65,16 @@ def read_zalo(base_dir, json_file, max = 0):
         cate = item['category']
         name = item['id']
         filename = base_dir + str(cate) + '/' + str(name) + '.jpg'
+        if os.path.exists(filename) == 0: # removed files 
+            print("Removed: ", filename)
+            continue 
         if os.path.getsize(filename) == 0: # zero-byte files 
+            os.remove(filename)
+            print("Zero: ", filename)
             continue 
         if imghdr.what(filename) not in ['jpeg', 'png', 'gif']: # invalid image files
+            os.remove(filename)
+            print("Invalid: ", filename)
             continue
 
         # print(cate, " > ", filename)
@@ -118,3 +125,6 @@ def unison_shuffled_copies(a, b):
 
 def top_3_accuracy(y_true, y_pred):
     return tf.keras.metrics.sparse_top_k_categorical_accuracy(y_true, y_pred, k=3) 
+
+def average(a): 
+    return numpy.mean(a)
