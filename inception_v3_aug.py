@@ -76,7 +76,7 @@ callbacks = [
   # Interrupt training if `val_loss` stops improving for over 2 epochs
   tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
   # Write TensorBoard logs to `./logs` directory
-  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190119/logs')
+  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190121/logs')
 ]
 # train the model on the new data for a few epochs
 history = model.fit(train_generator, epochs=20, steps_per_epoch=1000, 
@@ -93,7 +93,7 @@ print('train_acc: ',max(history.history['acc']))
 print('train_loss: ',min(history.history['loss']))
 print("train/val loss ratio: ", min(history.history['loss'])/min(history.history['val_loss']))
 
-model.save('my_inception_v3/20190119/inception_v3-model-20190119.h5')
+model.save('my_inception_v3/20190121/inception_v3-model-20190121.h5')
 # at this point, the top layers are well trained and we can start fine-tuning
 # convolutional layers from inception V3. We will freeze the bottom N layers
 # and train the remaining top layers.
@@ -118,7 +118,7 @@ callbacks = [
   # Interrupt training if `val_loss` stops improving for over 2 epochs
   tf.keras.callbacks.EarlyStopping(patience=50, monitor='val_loss'),
   # Write TensorBoard logs to `./logs` directory
-  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190119/relogs')
+  tf.keras.callbacks.TensorBoard(log_dir='./my_inception_v3/20190121/relogs')
 ]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
@@ -126,7 +126,7 @@ history = model.fit(train_generator, epochs=500, steps_per_epoch=1000,
   validation_data=validation_generator, validation_steps=100, 
   callbacks=callbacks)
 
-model.save('my_inception_v3/20190119/inception_v3-remodel-20190119.h5')
+model.save('my_inception_v3/20190121/inception_v3-remodel-20190121.h5')
 
 print('max_val_acc: ',max(history.history['val_acc']))
 print('min_val_acc: ',min(history.history['val_acc']))
