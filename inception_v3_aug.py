@@ -122,7 +122,7 @@ callbacks = [
 ]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-history = model.fit(train_generator, epochs=20, steps_per_epoch=1000, 
+history = model.fit(train_generator, epochs=500, steps_per_epoch=1000, 
   validation_data=validation_generator, validation_steps=100, 
   callbacks=callbacks)
 
@@ -131,6 +131,9 @@ model.save('my_inception_v3/20190119/inception_v3-remodel-20190119.h5')
 print('max_val_acc: ',max(history.history['val_acc']))
 print('min_val_acc: ',min(history.history['val_acc']))
 print('average_val_acc: ',utils.average(history.history['val_acc']))
+print('max_val_top_3: ',max(history.history['val_top_3_accuracy']))
+print('min_val_top_3: ',min(history.history['val_top_3_accuracy']))
+print('average_val_top_3: ',utils.average(history.history['val_top_3_accuracy']))
 print('max_val_loss: ',max(history.history['val_loss']))
 print('min_val_loss: ',min(history.history['val_loss']))
 print('average_val_loss: ',utils.average(history.history['val_loss']))
