@@ -64,6 +64,7 @@ def DownloadImage(key_url):
 
   try:
     pil_image_rgb.save(filename, format='JPEG', quality=90)
+    print('OK: %s' % key)
   except:
     print('Warning: Failed to save image %s' % filename)
     return
@@ -79,7 +80,7 @@ def Run():
     os.mkdir(out_dir)
 
   key_url_list = ParseDataWLabel(data_file)
-  pool = multiprocessing.Pool(processes=32)
+  pool = multiprocessing.Pool(processes=8)
   pool.map(DownloadImage, key_url_list)
 
 
