@@ -11,4 +11,4 @@ print(args.output)
 
 converter = lite.TFLiteConverter.from_keras_model_file(args.input)
 tfmodel = converter.convert()
-open (args.output).write(tfmodel)
+open (args.output,'wb').write(tfmodel)
