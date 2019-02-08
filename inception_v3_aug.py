@@ -12,6 +12,7 @@ from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 import utils
 import random
+import numpy as np
 
 # tf.enable_eager_execution()
 
@@ -34,8 +35,6 @@ train_generator = train_datagen.flow_from_directory(
   seed=42,
   subset="training"
 )
-print(train_generator.class_indices)
-print(train_generator.classes)
 
 validation_generator = train_datagen.flow_from_directory(
   directory=data_dir,
@@ -47,8 +46,9 @@ validation_generator = train_datagen.flow_from_directory(
   seed=42,
   subset="validation"
 )
-print(validation_generator.class_indices)
-print(validation_generator.classes)
+print(train_generator.class_indices)
+print(train_generator.class_indices['1'])
+np.dtype(train_generator.class_indices)
 
 # this could also be the output a different Keras model or layer
 # input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
@@ -126,7 +126,7 @@ callbacks = [
 ]
 # we train our model again (this time fine-tuning the top 2 inception blocks
 # alongside the top Dense layers
-history = model.fit(train_generator, epochs=5, steps_per_epoch=10, 
+history = model.fit(train_generator, epochs=1, steps_per_epoch=10, 
   validation_data=validation_generator, validation_steps=1, 
   callbacks=callbacks)
 
