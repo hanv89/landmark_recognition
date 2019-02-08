@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import utils
 import random
 import numpy as np
+import json
 
 # tf.enable_eager_execution()
 
@@ -46,10 +47,11 @@ validation_generator = train_datagen.flow_from_directory(
   seed=42,
   subset="validation"
 )
-print(train_generator.class_indices)
-print(train_generator.class_indices['1'])
-np.dtype(train_generator.class_indices)
 
+index_to_class = {v: k for k, v in train_generator.class_indices.items()}
+print(index_to_class)
+with open('my_inception_v3/index_to_class.json', 'w') as outfile:  
+    json.dump(index_to_class, outfile)
 # this could also be the output a different Keras model or layer
 # input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
 

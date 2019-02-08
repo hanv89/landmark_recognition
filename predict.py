@@ -9,14 +9,23 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 import numpy as np
 import argparse
 import matplotlib.pyplot as plt
+import json
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--class_index', default='index_to_class.json', type = str, help = 'index map')
 parser.add_argument('--input', default='image.jpg', type = str, help = 'input image')
 parser.add_argument('--model', default='model.h5', type = str, help = 'model in h5 format')
 args = parser.parse_args()
 
+print(args.class_index)
 print(args.input)
 print(args.model)
+
+index_to_class = {}
+with open(args.class_index) as json_file:  
+    index_to_class = json.load(json_file)
+
+print(index_to_class)
 
 model = keras.models.load_model(args.model)
 
@@ -30,7 +39,7 @@ preds = model.predict(x)
 # (one such list for each sample in the batch)
 
 top = preds[0].argsort()[-3:][::-1]
-y_classes = preds[0].argsort()
+top = list(map(lambda x: index_to_class[str(x)], top))
 
 plt.figure(figsize=(10,10))
 # plt.xticks([])
@@ -43,5 +52,4 @@ plt.xlabel(top)
 plt.show()
 
 print('Predicted:', top)
-print('Predicted:', y_classes)
 # Predicted: [(u'n02504013', u'Indian_elephant', 0.82658225), (u'n01871265', u'tusker', 0.1122357), (u'n02504458', u'African_elephant', 0.061040461)]
