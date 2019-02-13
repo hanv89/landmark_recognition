@@ -5,6 +5,9 @@ print(tf.VERSION)
 print(tf.keras.__version__)
 
 from tensorflow.keras.applications.resnet50 import ResNet50
+
+from tensorflow.keras.applications.resnet_v2 import ResNet152V2
+
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
@@ -55,7 +58,7 @@ print(val_dataset.output_shapes)
 # input_tensor = Input(shape=(240, 240, 3))  # this assumes K.image_data_format() == 'channels_last'
 
 # create the base pre-trained model
-base_model = ResNet50(weights='imagenet', include_top=False)
+base_model = ResNet152V2(weights='imagenet', include_top=False)
 
 # add a global spatial average pooling layer
 x = base_model.output
@@ -75,6 +78,11 @@ for layer in base_model.layers:
 
 # compile the model (should be done *after* setting layers to non-trainable)
 model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
+
+# let's visualize layer names and layer indices to see how many layers
+# we should freeze:
+for i, layer in enumerate(base_model.layers):
+   print(i, layer.name)
 
 # train the model on the new data for a few epochs
 
@@ -106,9 +114,9 @@ for i, layer in enumerate(base_model.layers):
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-for layer in model.layers[:123]:
+for layer in model.layers[:81]:
    layer.trainable = False
-for layer in model.layers[123:]:
+for layer in model.layers[81:]:
    layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
