@@ -12,24 +12,25 @@ from tensorflow.keras import backend as K
 
 import matplotlib.pyplot as plt
 import numpy as np
-import utils
+import utils.utils
 import random
 import json
 import argparse
 import time
 import sys
+import os
 
-timestr = time.strftime("%Y%m%d-%H%M%S")
-print("Training stated at " ,timestr)
+timestr = time.strftime('%Y%m%d-%H%M%S')
+print('Training stated at ' ,timestr)
 
 # tf.enable_eager_execution() #only for test run
 
 parser = argparse.ArgumentParser(description='Landmark Detection Training')
 
 #Directories
-parser.add_argument('--data', default="./data", type = str, help = 'Data dir')
-parser.add_argument('--output', default="./output", type = str, help = 'Output dir')
-parser.add_argument('--load_model', default='./models/model.h5', type = str, help = 'Saved model in h5 format')
+parser.add_argument('--data', default='./data', type = str, help = 'Data dir')
+parser.add_argument('--output', default='./output', type = str, help = 'Output dir')
+parser.add_argument('--load_model', type = str, help = 'Saved model in h5 format, eg: ./models/model.h5')
 
 #Network configs
 parser.add_argument('--net', default='inception_v3', type = str, help = 'Network structure: inception_v3, resnet_v2_50, resnet_v2_152')
@@ -44,7 +45,7 @@ parser.add_argument('--epochs', default=5, type = int, help = 'number of epoch')
 parser.add_argument('--steps_per_epoch', default=10, type = int, help = 'number of step per epoch')
 
 #Augmentation parameters
-parser.add_argument('--validation_split', default=0.1, type=float, help="percent of training samples per class")
+parser.add_argument('--validation_split', default=0.1, type=float, help='percent of training samples per class')
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom', type=float, default=0.2)
 parser.add_argument('--shear', type=float, default=0.2)
@@ -55,14 +56,19 @@ output_label = output_dir + '/label.index'
 output_model = output_dir + '/model.h5'
 output_log = output_dir + '/log'
 
+os.mkdir(output_dir)
+
+#specify input dimension
+print('Network type: ', args.net)
 if args.net.startswith('inception'):
   dim = 299
 elif args.net.startswith('resnet'):
   dim = 224
 else:
-  print("Not supported network type")
+  print('Not supported network type')
   sys.exit()
 
+#load data
 train_datagen = image.ImageDataGenerator(
   rescale=1./255,
   shear_range=args.shear,
@@ -73,36 +79,35 @@ train_datagen = image.ImageDataGenerator(
 train_generator = train_datagen.flow_from_directory(
   directory=args.data,
   target_size=(dim, dim),
-  color_mode="rgb",
+  color_mode='rgb',
   batch_size=args.batch,
-  class_mode="sparse",
+  class_mode='sparse',
   shuffle=True,
   seed=42,
-  subset="training"
+  subset='training'
 )
 
 validation_generator = train_datagen.flow_from_directory(
   directory=args.data,
   target_size=(dim, dim),
-  color_mode="rgb",
+  color_mode='rgb',
   batch_size=args.batch,
-  class_mode="sparse",
+  class_mode='sparse',
   shuffle=True,
   seed=42,
-  subset="validation"
+  subset='validation'
 )
 
 class_count = len(train_generator.class_indices)
 class_index = {v: k for k, v in train_generator.class_indices.items()}
-with open(output_label), 'w') as outfile:  
-  json.dump(class_index, outfile)
 
+#create model
 if not args.load_model:
   # create the base pre-trained model
-  if args.net == "inception_v3":
+  if args.net == 'inception_v3':
     base_model = InceptionV3(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   else:
-    print("Not supported network type")
+    print('Not supported network type')
     sys.exit()
 
   # add a global spatial average pooling layer
@@ -119,16 +124,24 @@ else:
   model = keras.models.load_model(args.load_model)
 
 if args.mode == 0:
+  print('Mode ',args.mode,': Printing network layers')
   for i, layer in enumerate(model.layers):
    print(i, layer.name)
 else:
-  if args.optimizer == "momentum":
+  #output class indices to file
+  with open(output_label, 'w') as outfile:  
+    json.dump(class_index, outfile)
+    
+  print('Mode ',args.mode,': Training...')
+  #compile model
+  if args.optimizer == 'momentum':
     optimizer = tf.train.MomentumOptimizer(learning_rate=args.lr, momentum=0.9)
   else:
     optimizer = tf.train.AdamOptimizer(learning_rate=args.lr)
 
   layers_count = len(model.layers)
   freeze_layers_count = (layers_count + args.freeze) % layers_count
+  print('Freeze ',freeze_layers_count, ' layers')
 
   for layer in model.layers[:freeze_layers_count]:
     layer.trainable = False
@@ -140,15 +153,20 @@ else:
 
   callbacks = [
     # Interrupt training if `val_loss` stops improving for over few epochs
-    tf.keras.callbacks.EarlyStopping(patience=epochs/10, monitor='val_loss'),
     # Write TensorBoard logs
     tf.keras.callbacks.TensorBoard(log_dir=output_log)
   ]
+  patience = epochs/10
+  callbacks.append(
+    tf.keras.callbacks.EarlyStopping(patience=epochs/10, monitor='val_loss')
+  )
 
+  #train
   history = model.fit(train_generator, epochs=args.epochs, steps_per_epoch=args.steps_per_epoch, 
     validation_data=validation_generator, validation_steps=args.steps_per_epoch/10, 
     callbacks=callbacks)
 
+  #save and print results
   model.save(output_model)
 
   print('max_val_acc: ',max(history.history['val_acc']))
@@ -162,4 +180,4 @@ else:
   print('average_val_loss: ',utils.average(history.history['val_loss']))
   print('train_acc: ',max(history.history['acc']))
   print('train_loss: ',min(history.history['loss']))
-  print("train/val loss ratio: ", min(history.history['loss'])/min(history.history['val_loss']))
+  print('train/val loss ratio: ', min(history.history['loss'])/min(history.history['val_loss']))
