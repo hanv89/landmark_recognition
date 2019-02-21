@@ -128,3 +128,23 @@ def top_3_accuracy(y_true, y_pred):
 
 def average(a): 
     return numpy.mean(a)
+
+def print_history(history):
+    print('val_acc: [',
+        min(history.history['val_acc']), 
+        ',', max(history.history['val_acc']), 
+        '], average: ', average(history.history['val_acc']))
+
+    print('max_val_top_3: [',
+        min(history.history['val_top_3_accuracy']), 
+        ',', max(history.history['val_top_3_accuracy']), 
+        '] average: ', average(history.history['val_top_3_accuracy']))
+        
+    print('max_val_loss: [', 
+        min(history.history['val_loss']), 
+        ',', max(history.history['val_loss']),
+        '] average: ', average(history.history['val_loss']))
+
+    print('train_acc: ',max(history.history['acc']))
+    print('train_loss: ',min(history.history['loss']))
+    print('train/val loss ratio: ', min(history.history['loss'])/min(history.history['val_loss']))

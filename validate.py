@@ -33,7 +33,9 @@ print(index_to_class)
 
 model = keras.models.load_model(args.model)
 
-correct = 0
+acc = 0
+top3 = 0
+top5 = 0
 total = 0
 
 data = pd.read_csv(args.input, names = ['id', 'label']) 
@@ -63,12 +65,19 @@ for index, row in data.iterrows():
     # decode the results into a list of tuples (class, description, probability)
     # (one such list for each sample in the batch)
 
-    top = preds[0].argsort()[-3:][::-1]
-    top = list(map(lambda x: index_to_class[str(x)], top))
+    top = preds[0].argsort()[-5:][::-1]
+    top_labels = list(map(lambda x: index_to_class[str(x)], top))
+    top_confidents = list(map(lambda x: preds[0][x], top))
 
     total+=1
-    if truthLabel in top :
-        correct+=1
+    if truthLabel in top_labels[:3] :
+        top3+=1
+
+    if truthLabel in top_labels[:5] :
+        top5+=1
+    
+    if truthLabel == top_labels[0] :
+        acc+=1    
 
     # plt.figure(figsize=(10,10))
     # # plt.xticks([])
@@ -80,7 +89,7 @@ for index, row in data.iterrows():
     # plt.xlabel(top)
     # plt.show()
 
-    print('Predicted: ', top, " truth: ", truthLabel)
+    print('[', row['id'], '] Predicted: ', top_labels, ', Confident: ', top_confidents, ", truth: ", truthLabel)
     # Predicted: [(u'n02504013', u'Indian_elephant', 0.82658225), (u'n01871265', u'tusker', 0.1122357), (u'n02504458', u'African_elephant', 0.061040461)]
 
-print('Corrected:', correct, ' / total: ', total)
+print('acc: ', acc, ', top3: ', top3, ', top5: ', top5, ' / total: ', total)

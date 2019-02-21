@@ -33,7 +33,7 @@ with open(model_map) as json_file:
     index_to_class = json.load(json_file)
 
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'png'])
 
 def get_as_base64(url):
     return base64.b64encode(requests.get(url).content)
