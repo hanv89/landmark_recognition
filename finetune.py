@@ -36,7 +36,7 @@ parser.add_argument('--load_model', type = str, help = 'Saved model in h5 format
 parser.add_argument('--pretrained_model', type = str, help = 'Pretrained model, eg: ./pretrained/model.h5')
 
 #Network configs
-parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'densenet_121', 'densenet_169'], type = str, help = 'Network structure')
+parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'densenet_121', 'densenet_169', 'densenet_201'], type = str, help = 'Network structure')
 parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer to freeze in finetune')
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 
@@ -122,8 +122,12 @@ if not args.load_model and not args.mode == 'finetune':
     base_model = InceptionV3(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'resnet_50':
     base_model = ResNet50(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'densenet_121':
+    base_model = DenseNet121(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'densenet_169':
     base_model = DenseNet169(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'densenet_201':
+    base_model = DenseNet201(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   else:
     print('Not supported network type')
     sys.exit()
