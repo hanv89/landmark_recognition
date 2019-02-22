@@ -65,10 +65,9 @@ os.mkdir(train_output_dir)
 
 finetune_output_dir = output_dir + '/finetune'
 finetune_output_model = finetune_output_dir + '/model.h5'
-finetune_check_point_model = finetune_output_dir + '/check_point'
+finetune_check_point_model = finetune_output_dir + '/check_point.h5'
 finetune_output_log = finetune_output_dir + '/log'
 os.mkdir(finetune_output_dir)
-os.mkdir(finetune_check_point_model)
 
 #specify input dimension
 print('Network type: ', args.net)
