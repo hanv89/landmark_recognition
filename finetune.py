@@ -5,7 +5,7 @@ print(tf.VERSION)
 print(tf.keras.__version__)
 
 from tensorflow.keras.applications.inception_v3 import InceptionV3
-from tensorflow.keras.applications.densenet import DenseNet169
+from tensorflow.keras.applications.densenet import DenseNet169,DenseNet201,DenseNet121
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
