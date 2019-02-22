@@ -65,8 +65,10 @@ os.mkdir(train_output_dir)
 
 finetune_output_dir = output_dir + '/finetune'
 finetune_output_model = finetune_output_dir + '/model.h5'
+finetune_check_point_model = finetune_output_dir + '/check_point'
 finetune_output_log = finetune_output_dir + '/log'
 os.mkdir(finetune_output_dir)
+os.mkdir(finetune_check_point_model)
 
 #specify input dimension
 print('Network type: ', args.net)
@@ -169,7 +171,7 @@ else:
     model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
     callbacks = [
-      tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/10, monitor='val_loss'),
+      tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
       # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
     ]
@@ -200,7 +202,8 @@ else:
     model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
     callbacks = [
-      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs/10, monitor='val_loss'),
+      tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
+      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs/4, monitor='val_loss'),
       # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log)
     ]
