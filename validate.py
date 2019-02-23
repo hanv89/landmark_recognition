@@ -19,6 +19,7 @@ parser.add_argument('--class_index', default='index_to_class.json', type = str, 
 parser.add_argument('--valdir', default='test', type = str, help = 'input dir')
 parser.add_argument('--input', default='input.csv', type = str, help = 'input images')
 parser.add_argument('--model', default='model.h5', type = str, help = 'model in h5 format')
+parser.add_argument('--size', default=299, type = int, help = 'img size')
 args = parser.parse_args()
 
 print(args.class_index)
@@ -56,7 +57,7 @@ for index, row in data.iterrows():
         
     truthLabel = row['label']
 
-    img = image.load_img(filename, target_size=(299, 299))
+    img = image.load_img(filename, target_size=(args.size, args.size))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)

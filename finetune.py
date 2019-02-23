@@ -5,8 +5,10 @@ print(tf.VERSION)
 print(tf.keras.__version__)
 
 from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.applications.densenet import DenseNet169,DenseNet201,DenseNet121
 from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
@@ -36,7 +38,7 @@ parser.add_argument('--load_model', type = str, help = 'Saved model in h5 format
 parser.add_argument('--pretrained_model', type = str, help = 'Pretrained model, eg: ./pretrained/model.h5')
 
 #Network configs
-parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'densenet_121', 'densenet_169', 'densenet_201'], type = str, help = 'Network structure')
+parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2'], type = str, help = 'Network structure')
 parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer to freeze in finetune')
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 
@@ -52,6 +54,9 @@ parser.add_argument('--validation_split', default=0.1, type=float, help='percent
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom', type=float, default=0.2)
 parser.add_argument('--shear', type=float, default=0.2)
+parser.add_argument('--width', type=float, default=0.2)
+parser.add_argument('--height', type=float, default=0.2)
+parser.add_argument('--rotate', type=int, default=20)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -73,9 +78,13 @@ os.mkdir(finetune_output_dir)
 print('Network type: ', args.net)
 if args.net.startswith('inception'):
   dim = 299
+elif args.net.startswith('xception'):
+  dim = 299
 elif args.net.startswith('resnet'):
   dim = 224
 elif args.net.startswith('densenet'):
+  dim = 224
+elif args.net.startswith('mobilenet'):
   dim = 224
 else:
   print('Not supported network type')
@@ -86,6 +95,9 @@ train_datagen = image.ImageDataGenerator(
   rescale=1./255,
   shear_range=args.shear,
   zoom_range=args.zoom,
+  width_shift_range=args.width,
+  height_shift_range=args.height,
+  rotation_range=args.rotate,
   horizontal_flip=args.horizontal_flip,
   validation_split=args.validation_split)
 
@@ -121,6 +133,8 @@ if not args.load_model and not args.mode == 'finetune':
     base_model = keras.models.load_model(args.pretrained_model)
   elif args.net == 'inception_v3':
     base_model = InceptionV3(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'xception':
+    base_model = Xception(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'resnet_50':
     base_model = ResNet50(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'densenet_121':
@@ -129,6 +143,8 @@ if not args.load_model and not args.mode == 'finetune':
     base_model = DenseNet169(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'densenet_201':
     base_model = DenseNet201(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'mobilenet_v2':
+    base_model = MobileNetV2(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   else:
     print('Not supported network type')
     sys.exit()
@@ -137,7 +153,7 @@ if not args.load_model and not args.mode == 'finetune':
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
   # let's add a fully-connected layer
-  x = Dense(1024, activation='relu')(x)
+  x = Dense(1024, activation='relu', kernel_regularizer=regularizers.l2(0.01))(x)
   # and a logistic layer
   predictions = Dense(class_count, activation='softmax')(x)
 
