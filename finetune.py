@@ -177,6 +177,8 @@ if args.mode == 'print':
   for i, layer in enumerate(model.layers):
    print(i, layer.name)
 else:
+
+  var start = time.time()
   #output class indices to file
   with open(output_label, 'w') as outfile:  
     json.dump(class_index, outfile)
@@ -233,3 +235,6 @@ else:
     model.save(finetune_output_model)
 
     utils.print_history(history)
+
+  var exec_time = time.time() - start
+  print("[", timestr, "] exec time: ", exec_time)
