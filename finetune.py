@@ -9,6 +9,7 @@ from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.applications.densenet import DenseNet169,DenseNet201,DenseNet121
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
@@ -153,7 +154,7 @@ if not args.load_model and not args.mode == 'finetune':
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
   # let's add a fully-connected layer
-  x = Dense(1024, activation='relu', kernel_regularizer=regularizers.l2(0.01))(x)
+  x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01))(x)
   # and a logistic layer
   predictions = Dense(class_count, activation='softmax')(x)
 
