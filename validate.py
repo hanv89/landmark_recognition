@@ -90,7 +90,7 @@ for index, row in data.iterrows():
     # plt.xlabel(top)
     # plt.show()
 
-    # print('[', row['id'], '] Predicted: ', top_labels, ', Confident: ', top_confidents, ", truth: ", truthLabel)
+    print('[', row['id'], '] Predicted: ', top_labels, ', Confident: ', top_confidents, ", truth: ", truthLabel)
     # Predicted: [(u'n02504013', u'Indian_elephant', 0.82658225), (u'n01871265', u'tusker', 0.1122357), (u'n02504458', u'African_elephant', 0.061040461)]
 
 print('acc: ', acc, ', top3: ', top3, ', top5: ', top5, ' / total: ', total)
