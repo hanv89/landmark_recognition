@@ -4,7 +4,7 @@ from tensorflow import keras
 print(tf.VERSION)
 print(tf.keras.__version__)
 
-from tensorflow.keras.preprocessing import image
+# from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 import numpy as np
 import pandas as pd
@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import json
 import os
 import imghdr
+import preprocessing_image as image
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--class_index', default='index_to_class.json', type = str, help = 'index map')
@@ -57,18 +59,29 @@ for index, row in data.iterrows():
         
     truthLabel = row['label']
 
-    img = image.load_img(filename, target_size=(args.size, args.size))
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
+    imgs = image.load_img_crop(filename, target_size=(args.size, args.size))
+    # plt.figure(figsize=(15,100))
+    # for i in range(6):
+    #     plt.subplot(1,6,i+1)
+    #     plt.xticks([])
+    #     plt.yticks([])
+    #     plt.grid(False)
+    #     plt.imshow(imgs[i], cmap=plt.cm.binary)
+    # plt.show()
+    x = image.imgs_to_array(imgs)
+    # x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)
 
     preds = model.predict(x)
     # decode the results into a list of tuples (class, description, probability)
     # (one such list for each sample in the batch)
+    pred = np.mean(preds, axis=0)
+    # for pred in preds:
+    # print(pred)
 
-    top = preds[0].argsort()[-5:][::-1]
+    top = pred.argsort()[-5:][::-1]
     top_labels = list(map(lambda x: index_to_class[str(x)], top))
-    top_confidents = list(map(lambda x: preds[0][x], top))
+    top_confidents = list(map(lambda x: pred[x], top))
 
     total+=1
     if truthLabel in top_labels[:3] :
@@ -79,18 +92,9 @@ for index, row in data.iterrows():
     
     if truthLabel == top_labels[0] :
         acc+=1    
-
-    # plt.figure(figsize=(10,10))
-    # # plt.xticks([])
-    # # plt.yticks([])
-    # plt.imshow(x[0])
-    # # plt.imshow(img, cmap=plt.cm.binary)
-    # plt.colorbar()
-    # plt.grid(False)
-    # plt.xlabel(top)
-    # plt.show()
-
-    print('[', row['id'], '] Predicted: ', top_labels, ', Confident: ', top_confidents, ", truth: ", truthLabel)
+    else :
+        print('[', row['id'], '] Predicted: ', top_labels, ', Confident: ', top_confidents, ", truth: ", truthLabel)
+        sys.stdout.flush()
     # Predicted: [(u'n02504013', u'Indian_elephant', 0.82658225), (u'n01871265', u'tusker', 0.1122357), (u'n02504458', u'African_elephant', 0.061040461)]
 
 print('acc: ', acc, ', top3: ', top3, ', top5: ', top5, ' / total: ', total)
