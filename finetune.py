@@ -175,7 +175,10 @@ else:
 if args.mode == 'print':
   print('Mode ',args.mode,': Printing network layers')
   for i, layer in enumerate(model.layers):
-   print(i, layer.name)
+    print(i, layer.name)  
+
+  with open(output_label + ".csv", 'w') as outfile:  
+    outfile.write('\n'.join(train_generator.class_indices))
 else:
   start = time.time()
   #output class indices to file

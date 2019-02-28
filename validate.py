@@ -28,11 +28,14 @@ print(args.class_index)
 print(args.input)
 print(args.model)
 
-index_to_class = {}
-with open(args.class_index) as json_file:  
-    index_to_class = json.load(json_file)
+# index_to_class = {}
+# with open(args.class_index) as json_file:  
+#     index_to_class = json.load(json_file)
 
-print(index_to_class)
+# print(index_to_class)
+
+labels = [line.rstrip('\n') for line in open(args.class_index)]
+print(labels)
 
 model = keras.models.load_model(args.model)
 
@@ -80,7 +83,7 @@ for index, row in data.iterrows():
     # print(pred)
 
     top = pred.argsort()[-5:][::-1]
-    top_labels = list(map(lambda x: index_to_class[str(x)], top))
+    top_labels = list(map(lambda x: labels[x], top))
     top_confidents = list(map(lambda x: pred[x], top))
 
     total+=1
