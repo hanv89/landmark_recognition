@@ -121,12 +121,12 @@ def load_img_crop(path, grayscale=False, color_mode='rgb', target_size=None,
 
     imgs = []
     w, h = img.size
-    imgs.append(img)
-    imgs.append(img.crop((0,0,w/2,h/2)))
-    imgs.append(img.crop((0,h/2,w/2,h)))
-    imgs.append(img.crop((w/2,0,w,h/2)))
-    imgs.append(img.crop((w/2,h/2,w,h)))
-    imgs.append(img.crop((w/4,h/4,3*w/4,3*h/4)))
+    # imgs.append(img)
+    imgs.append(img.crop((0,0,3*w/4,3*h/4)))
+    imgs.append(img.crop((0,h/4,3*w/4,h)))
+    imgs.append(img.crop((w/4,0,w,3*h/4)))
+    imgs.append(img.crop((w/4,h/4,w,h)))
+    imgs.append(img.crop((w/8,h/8,7*w/8,7*h/8)))
 
     # np_imgs = np.array(imgs)
 
