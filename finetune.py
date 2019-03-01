@@ -8,6 +8,7 @@ from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.applications.densenet import DenseNet169,DenseNet201,DenseNet121
 from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.nasnet import NASNetLarge,NASNetMobile
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
@@ -87,6 +88,8 @@ elif args.net.startswith('densenet'):
   dim = 224
 elif args.net.startswith('mobilenet'):
   dim = 224
+elif args.net.startswith('nasnet'):
+  dim = 331
 else:
   print('Not supported network type')
   sys.exit()
@@ -146,6 +149,10 @@ if not args.load_model and not args.mode == 'finetune':
     base_model = DenseNet201(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'mobilenet_v2':
     base_model = MobileNetV2(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'nasnetlarge':
+    base_model = NASNetLarge(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'nasnetmobile':
+    base_model = NASNetMobile(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   else:
     print('Not supported network type')
     sys.exit()
@@ -176,14 +183,14 @@ if args.mode == 'print':
   print('Mode ',args.mode,': Printing network layers')
   for i, layer in enumerate(model.layers):
     print(i, layer.name)  
-
-  with open(output_label + ".csv", 'w') as outfile:  
-    outfile.write('\n'.join(train_generator.class_indices))
 else:
   start = time.time()
   #output class indices to file
   with open(output_label, 'w') as outfile:  
     json.dump(class_index, outfile)
+
+  with open(output_label + ".csv", 'w') as outfile:  
+    outfile.write('\n'.join(train_generator.class_indices))
     
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
