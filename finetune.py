@@ -88,8 +88,10 @@ elif args.net.startswith('densenet'):
   dim = 224
 elif args.net.startswith('mobilenet'):
   dim = 224
-elif args.net.startswith('nasnet'):
+elif args.net.startswith('nasnetlarge'):
   dim = 331
+elif args.net.startswith('nasnetmobile'):
+  dim = 224
 else:
   print('Not supported network type')
   sys.exit()
