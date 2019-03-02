@@ -76,6 +76,11 @@ finetune_check_point_model = finetune_output_dir + '/check_point.h5'
 finetune_output_log = finetune_output_dir + '/log'
 os.mkdir(finetune_output_dir)
 
+train_savedmodel_output_dir = train_output_dir + '/savedmodel'
+finetune_savedmodel_output_dir = finetune_output_dir + '/savedmodel'
+os.mkdir(train_savedmodel_output_dir)
+os.mkdir(finetune_savedmodel_output_dir)
+
 #specify input dimension
 print('Network type: ', args.net)
 if args.net.startswith('inception'):
@@ -212,6 +217,7 @@ else:
 
     #save and print results
     model.save(train_output_model)
+    tf.contrib.saved_model.save_keras_model(model, train_savedmodel_output_dir)    
 
     utils.print_history(history)
 
@@ -244,6 +250,7 @@ else:
 
     #save and print results
     model.save(finetune_output_model)
+    tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir)  
 
     utils.print_history(history)
 

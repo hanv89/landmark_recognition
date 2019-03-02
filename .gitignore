@@ -104,10 +104,10 @@ venv.bak/
 .mypy_cache/
 
 data/
-my_inception_v3/20190119/
-my_basic_cnn/20190119/
+deprecated/my_inception_v3/
+deprecated/my_basic_cnn/
 GLDdata/
 zaloai_models/
-my_resnet50/20190115/
+deprecated/my_resnet50/
 uploads/
 output/

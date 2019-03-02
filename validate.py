@@ -4,7 +4,8 @@ from tensorflow import keras
 print(tf.VERSION)
 print(tf.keras.__version__)
 
-# from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing import image
+# import utils.preprocessing.image as image
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 import numpy as np
 import pandas as pd
@@ -13,7 +14,6 @@ import matplotlib.pyplot as plt
 import json
 import os
 import imghdr
-import preprocessing_image as image
 import sys
 import time
 
@@ -64,7 +64,10 @@ for index, row in data.iterrows():
         
     truthLabel = row['label']
 
-    imgs = image.load_img_crop(filename, target_size=(args.size, args.size))
+    # imgs = image.load_img_crop(filename, target_size=(args.size, args.size))
+    # x = image.imgs_to_array(imgs)
+    imgs = image.load_img(filename, target_size=(args.size, args.size))
+    x = image.img_to_array(imgs)
     # plt.figure(figsize=(15,100))
     # for i in range(6):
     #     plt.subplot(1,6,i+1)
@@ -73,8 +76,7 @@ for index, row in data.iterrows():
     #     plt.grid(False)
     #     plt.imshow(imgs[i], cmap=plt.cm.binary)
     # plt.show()
-    x = image.imgs_to_array(imgs)
-    # x = np.expand_dims(x, axis=0)
+    x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)
 
     preds = model.predict(x)
