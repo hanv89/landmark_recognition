@@ -18,7 +18,7 @@ from tensorflow.keras import backend as K
 
 import matplotlib.pyplot as plt
 import numpy as np
-import utils
+import utils.utils as utils
 import random
 import json
 import argparse
