@@ -22,12 +22,14 @@ parser.add_argument('--class_index', default='index_to_class.json', type = str, 
 parser.add_argument('--valdir', default='test', type = str, help = 'input dir')
 parser.add_argument('--input', default='input.csv', type = str, help = 'input images')
 parser.add_argument('--model', default='model.h5', type = str, help = 'model in h5 format')
+parser.add_argument('--savedmodel', type = str, help = 'savedmodel dir')
 parser.add_argument('--size', default=299, type = int, help = 'img size')
 args = parser.parse_args()
 
 print(args.class_index)
 print(args.input)
 print(args.model)
+print(args.savedmodel)
 
 start = time.time()
 # index_to_class = {}
@@ -39,7 +41,10 @@ start = time.time()
 labels = [line.rstrip('\n') for line in open(args.class_index)]
 print(labels)
 
-model = keras.models.load_model(args.model)
+if not args.savedmodel:
+    model = keras.models.load_model(args.model)
+else:
+    model = tf.contrib.saved_model.load_keras_model(args.savedmodel)
 
 acc = 0
 top3 = 0

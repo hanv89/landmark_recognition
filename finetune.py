@@ -134,6 +134,10 @@ validation_generator = train_datagen.flow_from_directory(
   subset='validation'
 )
 
+
+with open(output_label + ".csv", 'w') as outfile:  
+  outfile.write('\n'.join(train_generator.class_indices))
+
 class_count = len(train_generator.class_indices)
 class_index = {v: k for k, v in train_generator.class_indices.items()}
 
@@ -195,9 +199,6 @@ else:
   #output class indices to file
   with open(output_label, 'w') as outfile:  
     json.dump(class_index, outfile)
-
-  with open(output_label + ".csv", 'w') as outfile:  
-    outfile.write('\n'.join(train_generator.class_indices))
     
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
