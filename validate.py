@@ -7,6 +7,7 @@ print(tf.keras.__version__)
 from tensorflow.keras.preprocessing import image
 # import utils.preprocessing.image as image
 from tensorflow.keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.applications import nasnet
 import numpy as np
 import pandas as pd
 import argparse
@@ -82,7 +83,7 @@ for index, row in data.iterrows():
     #     plt.imshow(imgs[i], cmap=plt.cm.binary)
     # plt.show()
     x = np.expand_dims(x, axis=0)
-    x = preprocess_input(x)
+    x = nasnet.preprocess_input(x)
 
     preds = model.predict(x)
     # decode the results into a list of tuples (class, description, probability)

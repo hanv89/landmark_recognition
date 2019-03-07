@@ -13,7 +13,7 @@ from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout
 from tensorflow.keras import backend as K
 
 import matplotlib.pyplot as plt
@@ -45,7 +45,7 @@ parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer 
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 
 #Train parameters
-parser.add_argument('--batch', default=32, type = int, help = 'batch size')
+parser.add_argument('--batch', default=128, type = int, help = 'batch size')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
@@ -56,9 +56,11 @@ parser.add_argument('--validation_split', default=0.1, type=float, help='percent
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom', type=float, default=0.2)
 parser.add_argument('--shear', type=float, default=0.2)
-parser.add_argument('--width', type=float, default=0.2)
-parser.add_argument('--height', type=float, default=0.2)
+parser.add_argument('--width', type=float, default=0.0)
+parser.add_argument('--height', type=float, default=0.0)
 parser.add_argument('--rotate', type=int, default=20)
+
+parser.add_argument('--dropout', type=float, default=0.0)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -112,16 +114,16 @@ train_datagen = image.ImageDataGenerator(
   horizontal_flip=args.horizontal_flip,
   validation_split=args.validation_split)
 
-train_generator = train_datagen.flow_from_directory(
+train_generator = utils.crop_generator(train_datagen.flow_from_directory(
   directory=args.data,
-  target_size=(dim, dim),
+  target_size=(dim*4/3, dim*4/3),
   color_mode='rgb',
   batch_size=args.batch,
   class_mode='sparse',
   shuffle=True,
   seed=42,
   subset='training'
-)
+), dim)
 
 validation_generator = train_datagen.flow_from_directory(
   directory=args.data,
@@ -136,10 +138,10 @@ validation_generator = train_datagen.flow_from_directory(
 
 
 with open(output_label + ".csv", 'w') as outfile:  
-  outfile.write('\n'.join(train_generator.class_indices))
+  outfile.write('\n'.join(validation_generator.class_indices))
 
-class_count = len(train_generator.class_indices)
-class_index = {v: k for k, v in train_generator.class_indices.items()}
+class_count = len(validation_generator.class_indices)
+class_index = {v: k for k, v in validation_generator.class_indices.items()}
 
 #create model
 if not args.load_model and not args.mode == 'finetune':
@@ -171,6 +173,8 @@ if not args.load_model and not args.mode == 'finetune':
   # add a global spatial average pooling layer
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
+  if args.dropout > 0:
+    x = Dropout(rate=args.dropout)(x)
   # let's add a fully-connected layer
   x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01))(x)
   # and a logistic layer
@@ -203,10 +207,10 @@ else:
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
     #compile training model
-    model.compile(optimizer=tf.train.AdamOptimizer(), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.01), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
     callbacks = [
-      tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
+      # tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
       # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
     ]
@@ -235,7 +239,7 @@ else:
       layer.trainable = True
 
     # compile the model (should be done *after* setting layers to non-trainable)
-    model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
+    model.compile(optimizer=tf.keras.optimizers.SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
 
     callbacks = [
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
