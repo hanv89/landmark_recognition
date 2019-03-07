@@ -135,10 +135,10 @@ def print_history(history):
         ',', max(history.history['val_acc']), 
         '], average: ', average(history.history['val_acc']))
 
-    print('max_val_top_3: [',
-        min(history.history['val_top_3_accuracy']), 
-        ',', max(history.history['val_top_3_accuracy']), 
-        '] average: ', average(history.history['val_top_3_accuracy']))
+    # print('max_val_top_3: [',
+    #     min(history.history['val_top_3_accuracy']), 
+    #     ',', max(history.history['val_top_3_accuracy']), 
+    #     '] average: ', average(history.history['val_top_3_accuracy']))
         
     print('max_val_loss: [', 
         min(history.history['val_loss']), 

@@ -116,7 +116,7 @@ train_datagen = image.ImageDataGenerator(
 
 train_generator = utils.crop_generator(train_datagen.flow_from_directory(
   directory=args.data,
-  target_size=(dim*4/3, dim*4/3),
+  target_size=(int(dim*4/3), int(dim*4/3)),
   color_mode='rgb',
   batch_size=args.batch,
   class_mode='sparse',
@@ -207,7 +207,7 @@ else:
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
     #compile training model
-    model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.01), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.01), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
       # tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
@@ -239,7 +239,7 @@ else:
       layer.trainable = True
 
     # compile the model (should be done *after* setting layers to non-trainable)
-    model.compile(optimizer=tf.keras.optimizers.SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy', utils.top_3_accuracy])
+    model.compile(optimizer=tf.keras.optimizers.SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
