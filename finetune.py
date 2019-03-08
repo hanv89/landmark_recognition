@@ -50,6 +50,7 @@ parser.add_argument('--train_epochs', default=2, type = int, help = 'number of t
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch', default=5, type = int, help = 'number of step per finetune epoch')
+parser.add_argument('--workers', default=1, type = int, help = 'number of workers')
 
 #Augmentation parameters
 parser.add_argument('--validation_split', default=0.1, type=float, help='percent of training samples per class')
@@ -249,9 +250,10 @@ else:
     ]
 
     #train
-    history = model.fit(train_generator, epochs=args.finetune_epochs, steps_per_epoch=args.finetune_steps_per_epoch, 
+    history = model.fit_generator(train_generator, epochs=args.finetune_epochs, steps_per_epoch=args.finetune_steps_per_epoch, 
       validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch/10, 
-      callbacks=callbacks)
+      callbacks=callbacks,
+      workers=args.workers)
 
     #save and print results
     model.save(finetune_output_model)
