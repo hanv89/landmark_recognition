@@ -45,7 +45,7 @@ parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer 
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 
 #Train parameters
-parser.add_argument('--batch', default=128, type = int, help = 'batch size')
+parser.add_argument('--batch', default=64, type = int, help = 'batch size')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
@@ -217,9 +217,10 @@ else:
     ]
 
     #train
-    history = model.fit(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
+    history = model.fit_generator(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
       validation_data=validation_generator, validation_steps=args.train_steps_per_epoch/10, 
-      callbacks=callbacks)
+      callbacks=callbacks,
+      workers=args.workers)
 
     #save and print results
     model.save(train_output_model)
