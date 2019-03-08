@@ -211,7 +211,7 @@ else:
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.01), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
-      # tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
+      tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
       # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
     ]
