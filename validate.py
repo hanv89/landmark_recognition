@@ -83,7 +83,7 @@ for index, row in data.iterrows():
     #     plt.imshow(imgs[i], cmap=plt.cm.binary)
     # plt.show()
     x = np.expand_dims(x, axis=0)
-    x = nasnet.preprocess_input(x)
+    x = preprocess_input(x)
 
     preds = model.predict(x)
     # decode the results into a list of tuples (class, description, probability)

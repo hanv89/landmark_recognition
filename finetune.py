@@ -121,7 +121,7 @@ train_datagen = image.ImageDataGenerator(
 
 train_generator = utils.crop_generator(train_datagen.flow_from_directory(
   directory=args.data,
-  target_size=(int(dim*4/3), int(dim*4/3)),
+  target_size=(int(dim*5/4), int(dim*5/4)),
   color_mode='rgb',
   batch_size=args.batch,
   class_mode='sparse',
