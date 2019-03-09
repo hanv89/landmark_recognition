@@ -23,6 +23,7 @@ import random
 import json
 import argparse
 import time
+import math
 import sys
 import os
 
@@ -46,8 +47,11 @@ parser.add_argument('--mode', default='train_then_finetune', choices=['print', '
 
 #Train parameters
 parser.add_argument('--batch', default=64, type = int, help = 'batch size')
+parser.add_argument('--train_lr', default=0.05, type = float, help = 'training learning rate')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
+parser.add_argument('--finetune_lr', default=0.2048, type = float, help = 'finetune learning rate')
+parser.add_argument('--finetune_lr_decay_10', default=0.5, type = float, help = 'finetune learning rate decay earch 10 epochs')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch', default=5, type = int, help = 'number of step per finetune epoch')
 parser.add_argument('--workers', default=1, type = int, help = 'number of workers')
@@ -208,7 +212,7 @@ else:
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
     #compile training model
-    model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.01), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.train_lr), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
       tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
@@ -241,9 +245,19 @@ else:
       layer.trainable = True
 
     # compile the model (should be done *after* setting layers to non-trainable)
-    model.compile(optimizer=tf.keras.optimizers.SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+    model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+
+    def step_decay(epoch):
+      initial_lrate = args.finetune_lr
+      drop = args.finetune_lr_decay_10
+      epochs_drop = 10.0
+      lrate = initial_lrate * math.pow(drop,  
+              math.floor(epoch/epochs_drop))
+      print("lr: ", lrate)
+      return lrate
 
     callbacks = [
+      tf.keras.callbacks.LearningRateScheduler(step_decay),
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
       tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs/4, monitor='val_loss'),
       # Write TensorBoard logs
@@ -261,6 +275,7 @@ else:
     tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir)  
 
     utils.print_history(history)
+    print(K.eval(model.optimizer.lr))
 
   exec_time = time.time() - start
   print("[", timestr, "] exec time: ", exec_time)

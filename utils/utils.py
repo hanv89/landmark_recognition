@@ -169,3 +169,4 @@ def crop_generator(batches, crop_length):
         for i in range(batch_x.shape[0]):
             batch_crops[i] = random_crop(batch_x[i], (crop_length, crop_length))
         yield (batch_crops, batch_y)
+
