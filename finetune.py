@@ -186,21 +186,14 @@ if not args.load_model and not args.mode == 'finetune':
     print('Not supported network type')
     sys.exit()
 
-  # add a global spatial average pooling layer
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
   if args.dropout > 0:
     x = Dropout(rate=args.dropout)(x)
-  # let's add a fully-connected layer
   x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01))(x)
-  # and a logistic layer
   predictions = Dense(class_count, activation='softmax')(x)
-
-  # this is the model we will train
   model = Model(inputs=base_model.input, outputs=predictions)
 
-  # first: train only the top layers (which were randomly initialized)
-  # i.e. freeze all convolutional InceptionV3 layers
   for layer in base_model.layers:
     layer.trainable = False
 
@@ -222,12 +215,10 @@ else:
     
   if args.mode.startswith('train'):    
     print('Mode ',args.mode,': Training...')
-    #compile training model
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.train_lr), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
       tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
-      # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
     ]
 
@@ -255,7 +246,6 @@ else:
     for layer in model.layers[freeze_layers_count:]:
       layer.trainable = True
 
-    # compile the model (should be done *after* setting layers to non-trainable)
     model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     def step_decay(epoch):
@@ -271,7 +261,6 @@ else:
       tf.keras.callbacks.LearningRateScheduler(step_decay),
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
       tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs/4, monitor='val_loss'),
-      # Write TensorBoard logs
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log)
     ]
 
