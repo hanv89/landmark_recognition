@@ -4,6 +4,7 @@ import os
 import random
 import imghdr
 import numpy
+import math
 
 def get_fns_lbs(base_dir, json_file, pickle_fn = 'mydata.p', force = False):    
     pickle_fn = base_dir + pickle_fn 
@@ -161,18 +162,18 @@ def random_crop(img, random_crop_size):
 def random_crop_tf(img, random_crop_size):
     assert img.shape[2] == 3
     height, width = img.shape[0], img.shape[1]
-    dim = math.min(height, width)
-    # TensorFlow. 'x' = A placeholder for an image.
-    desire_size = [random_crop_size, random_crop_size, 3]
-    x = tf.placeholder(dtype = tf.float32, shape = desire_size)
-    # Use the following commands to perform random crops
-    new_dim = numpy.random.randint(random_crop_size, dim)
+    dy, dx = random_crop_size
+    new_dim = numpy.random.randint(dy, height)
 
     crop_size = [new_dim, new_dim, 3]
-    seed = np.random.randint(1234)
-    x = tf.random_crop(x, size = crop_size, seed = seed)
+    desire_size = [dy, dx]
+
+    seed = numpy.random.randint(1234)
+    x = tf.random_crop(img, size = crop_size, seed = seed)
     
-    output = tf.images.resize_images(x, size = desire_size)
+    output = tf.image.resize_images(x, size = desire_size)
+    print("ing:",img)
+    print("output:",output)
     return output
 
 
