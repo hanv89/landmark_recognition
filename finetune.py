@@ -62,13 +62,15 @@ parser.add_argument('--validation_split', default=0.1, type=float, help='percent
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom', type=float, default=0.2)
 parser.add_argument('--shear', type=float, default=0.2)
-parser.add_argument('--width', type=float, default=0.0)
-parser.add_argument('--height', type=float, default=0.0)
+parser.add_argument('--width', type=float, default=0.1)
+parser.add_argument('--height', type=float, default=0.1)
 parser.add_argument('--rotate', type=int, default=20)
-parser.add_argument('--crop', type=float, default=0.0)
+parser.add_argument('--crop', type=float, default=0.1)
 
 parser.add_argument('--dropout', type=float, default=0.0)
 args = parser.parse_args()
+
+print(args.train_steps_per_epoch)
 
 output_dir = args.output + '/' + args.net + '-' + timestr
 output_label = output_dir + '/label.index'
@@ -121,23 +123,29 @@ train_datagen = image.ImageDataGenerator(
   horizontal_flip=args.horizontal_flip,
   validation_split=args.validation_split)
 
-before_crop_dim = dim
 if args.crop > 0:
   before_crop_dim = int(dim/(1-args.crop))
-
-train_generator = train_datagen.flow_from_directory(
-  directory=args.data,
-  target_size=(before_crop_dim, before_crop_dim),
-  color_mode='rgb',
-  batch_size=args.batch,
-  class_mode='sparse',
-  shuffle=True,
-  seed=42,
-  subset='training'
-)
-
-if args.crop > 0:
-  train_generator = utils.crop_generator(train_generator, dim)
+  train_generator = utils.crop_generator(train_datagen.flow_from_directory(
+    directory=args.data,
+    target_size=(before_crop_dim, before_crop_dim),
+    color_mode='rgb',
+    batch_size=args.batch,
+    class_mode='sparse',
+    shuffle=True,
+    seed=42,
+    subset='training'
+  ), dim)
+else:
+  train_generator = train_datagen.flow_from_directory(
+    directory=args.data,
+    target_size=(dim, dim),
+    color_mode='rgb',
+    batch_size=args.batch,
+    class_mode='sparse',
+    shuffle=True,
+    seed=42,
+    subset='training'
+  )
 
 validation_generator = train_datagen.flow_from_directory(
   directory=args.data,
