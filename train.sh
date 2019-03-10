@@ -3,3 +3,4 @@
 ./train/nasnet.sh
 ./train/mobilenet.sh
 ./train/xception.sh
+./train/inception.sh

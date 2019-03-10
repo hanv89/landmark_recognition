@@ -10,6 +10,7 @@ from tensorflow.keras.applications.densenet import DenseNet169,DenseNet201,Dense
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.nasnet import NASNetLarge,NASNetMobile
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
@@ -41,7 +42,7 @@ parser.add_argument('--load_model', type = str, help = 'Saved model in h5 format
 parser.add_argument('--pretrained_model', type = str, help = 'Pretrained model, eg: ./pretrained/model.h5')
 
 #Network configs
-parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2', 'nasnetmobile', 'nasnetlarge'], type = str, help = 'Network structure')
+parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2', 'nasnetmobile', 'nasnetlarge', 'inceptionresnet_v2'], type = str, help = 'Network structure')
 parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer to freeze in finetune')
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 
@@ -179,6 +180,8 @@ if not args.load_model and not args.mode == 'finetune':
     base_model = NASNetLarge(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   elif args.net == 'nasnetmobile':
     base_model = NASNetMobile(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+  elif args.net == 'inceptionresnet_v2':
+    base_model = InceptionResNetV2(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
   else:
     print('Not supported network type')
     sys.exit()
