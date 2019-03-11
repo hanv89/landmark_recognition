@@ -70,8 +70,6 @@ parser.add_argument('--crop', type=float, default=0.1)
 parser.add_argument('--dropout', type=float, default=0.0)
 args = parser.parse_args()
 
-print(args.train_steps_per_epoch)
-
 output_dir = args.output + '/' + args.net + '-' + timestr
 output_label = output_dir + '/label.index'
 os.mkdir(output_dir)
