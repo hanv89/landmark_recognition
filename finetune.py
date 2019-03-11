@@ -68,6 +68,7 @@ parser.add_argument('--rotate', type=int, default=20)
 parser.add_argument('--crop', type=float, default=0)
 
 parser.add_argument('--dropout', type=float, default=0.0)
+parser.add_argument('--l2', type=float, default=0.01)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -196,7 +197,7 @@ if not args.load_model and not args.mode == 'finetune':
   x = GlobalAveragePooling2D()(x)
   if args.dropout > 0:
     x = Dropout(rate=args.dropout)(x)
-  x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01))(x)
+  x = Dense(1024, activation='relu', kernel_regularizer=l2(args.l2))(x)
   predictions = Dense(class_count, activation='softmax')(x)
   model = Model(inputs=base_model.input, outputs=predictions)
 
