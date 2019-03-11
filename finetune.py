@@ -48,10 +48,10 @@ parser.add_argument('--mode', default='train_then_finetune', choices=['print', '
 
 #Train parameters
 parser.add_argument('--batch', default=64, type = int, help = 'batch size')
-parser.add_argument('--train_lr', default=0.05, type = float, help = 'training learning rate')
+parser.add_argument('--train_lr', default=0.01, type = float, help = 'training learning rate')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
-parser.add_argument('--finetune_lr', default=0.2048, type = float, help = 'finetune learning rate')
+parser.add_argument('--finetune_lr', default=0.0128, type = float, help = 'finetune learning rate')
 parser.add_argument('--finetune_lr_decay_10', default=0.5, type = float, help = 'finetune learning rate decay earch 10 epochs')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch', default=5, type = int, help = 'number of step per finetune epoch')
@@ -258,7 +258,7 @@ else:
     def step_decay(epoch):
       initial_lrate = args.finetune_lr
       drop = args.finetune_lr_decay_10
-      epochs_drop = 10.0
+      epochs_drop = 15.0
       lrate = initial_lrate * math.pow(drop,  
               math.floor(epoch/epochs_drop))
       print("lr: ", lrate)
