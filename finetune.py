@@ -51,8 +51,9 @@ parser.add_argument('--batch', default=64, type = int, help = 'batch size')
 parser.add_argument('--train_lr', default=0.001, type = float, help = 'training learning rate')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
-parser.add_argument('--finetune_lr', default=0.0128, type = float, help = 'finetune learning rate')
-parser.add_argument('--finetune_lr_decay_10', default=0.5, type = float, help = 'finetune learning rate decay earch 10 epochs')
+parser.add_argument('--finetune_lr', default=0.001, type = float, help = 'finetune learning rate')
+parser.add_argument('--finetune_min_lr', default=0.00001, type = float, help = 'finetune min learning rate')
+parser.add_argument('--finetune_lr_decay', default=0.5, type = float, help = 'finetune learning rate decay if val_loss does not decrease')
 parser.add_argument('--finetune_epochs', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch', default=5, type = int, help = 'number of step per finetune epoch')
 parser.add_argument('--workers', default=1, type = int, help = 'number of workers')
@@ -255,17 +256,8 @@ else:
 
     model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
-    def step_decay(epoch):
-      initial_lrate = args.finetune_lr
-      drop = args.finetune_lr_decay_10
-      epochs_drop = 15.0
-      lrate = initial_lrate * math.pow(drop,  
-              math.floor(epoch/epochs_drop))
-      print("lr: ", lrate)
-      return lrate
-
     callbacks = [
-      tf.keras.callbacks.LearningRateScheduler(step_decay),
+      tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=10, min_lr=args.finetune_min_lr),
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model,monitor='val_loss',save_best_only=True),
       tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs/4, monitor='val_loss'),
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log)
