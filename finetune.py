@@ -62,10 +62,10 @@ parser.add_argument('--validation_split', default=0.1, type=float, help='percent
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom', type=float, default=0.2)
 parser.add_argument('--shear', type=float, default=0.2)
-parser.add_argument('--width', type=float, default=0.1)
-parser.add_argument('--height', type=float, default=0.1)
+parser.add_argument('--width', type=float, default=0.2)
+parser.add_argument('--height', type=float, default=0.2)
 parser.add_argument('--rotate', type=int, default=20)
-parser.add_argument('--crop', type=float, default=0.1)
+parser.add_argument('--crop', type=float, default=0)
 
 parser.add_argument('--dropout', type=float, default=0.0)
 args = parser.parse_args()
