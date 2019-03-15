@@ -8,4 +8,4 @@
 ./train/bigbatch1.sh
 ./train/bigbatch2.sh
 ./train/bigbatch3.sh
-./train/bigbatch3.sh
+./train/bigbatch4.sh
