@@ -64,11 +64,13 @@ parser.add_argument('--workers', default=1, type = int, help = 'number of worker
 #Augmentation parameters
 parser.add_argument('--validation_split', default=0.1, type=float, help='percent of training samples per class')
 parser.add_argument('--horizontal_flip', type=bool, default=True)
-parser.add_argument('--zoom', type=float, default=0.2)
-parser.add_argument('--shear', type=float, default=0.2)
+parser.add_argument('--zoom_in', type=float, default=0.3)
+parser.add_argument('--zoom_out', type=float, default=0.1)
+parser.add_argument('--shear', type=float, default=0.1)
 parser.add_argument('--width', type=float, default=0.2)
 parser.add_argument('--height', type=float, default=0.2)
 parser.add_argument('--rotate', type=int, default=20)
+parser.add_argument('--channel', type=float, default=30)
 parser.add_argument('--crop', type=float, default=0)
 
 parser.add_argument('--dropout', type=float, default=0.0)
@@ -130,12 +132,14 @@ else:
 train_datagen = image.ImageDataGenerator(
   rescale=1./255,
   shear_range=args.shear,
-  zoom_range=args.zoom,
+  zoom_range=[1-args.zoom_in, 1+args.zoom_out],
   width_shift_range=args.width,
   height_shift_range=args.height,
   rotation_range=args.rotate,
+  channel_shift_range=args.channel,
   horizontal_flip=args.horizontal_flip,
-  validation_split=args.validation_split)
+  validation_split=args.validation_split,
+  fill_mode='reflect')
 
 if args.crop > 0:
   before_crop_dim = int(dim/(1-args.crop))
@@ -273,7 +277,7 @@ else:
 
     callbacks = [
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model1,monitor='val_loss',save_best_only=True),
-      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs1/4, monitor='val_loss'),
+      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs1/3, monitor='val_loss'),
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log1)
     ]
 
