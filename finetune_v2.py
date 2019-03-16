@@ -277,7 +277,7 @@ else:
 
     callbacks = [
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model1,monitor='val_loss',save_best_only=True),
-      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs1/3, monitor='val_loss'),
+      tf.keras.callbacks.EarlyStopping(patience=4, monitor='val_loss'),
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log1)
     ]
 
@@ -298,9 +298,9 @@ else:
     model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr2, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
     callbacks = [
-      tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=5, min_lr=args.finetune_min_lr),
+      tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=4, min_lr=args.finetune_min_lr),
       tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model2,monitor='val_loss',save_best_only=True),
-      tf.keras.callbacks.EarlyStopping(patience=args.finetune_epochs2/4, monitor='val_loss'),
+      tf.keras.callbacks.EarlyStopping(patience=16, monitor='val_loss'),
       tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log2)
     ]
 
