@@ -6,7 +6,11 @@
 # ./train/inception.sh
 
 ./train/densenet1.sh
+./train/mobilenet1.sh
+./train/mobilenet2.sh
 ./train/densenet2.sh
+./train/densenet3.sh
+./train/densenet4.sh
 # ./train/bigbatch1.sh
 # ./train/bigbatch2.sh
 # ./train/bigbatch3.sh
