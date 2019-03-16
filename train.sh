@@ -5,6 +5,8 @@
 # ./train/xception.sh
 # ./train/inception.sh
 
+./train/densenet1.sh
+./train/densenet2.sh
 ./train/bigbatch1.sh
 ./train/bigbatch2.sh
 ./train/bigbatch3.sh
