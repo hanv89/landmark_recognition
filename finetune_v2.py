@@ -272,50 +272,55 @@ else:
     for layer in model.layers[freeze_layers_count:]:
       layer.trainable = True
 
-    #start training with adam
-    model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.finetune_lr1), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+    if args.finetune_epochs1 > 0:
+      #start training with adam
+      print('Finetune using Adam...')
+      model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.finetune_lr1), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
-    callbacks = [
-      tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model1,monitor='val_loss',save_best_only=True),
-      tf.keras.callbacks.EarlyStopping(patience=4, monitor='val_loss'),
-      tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log1)
-    ]
+      callbacks = [
+        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=4, min_lr=args.finetune_min_lr),
+        tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model1,monitor='val_loss',save_best_only=True),
+        tf.keras.callbacks.EarlyStopping(patience=16, monitor='val_loss'),
+        tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log1)
+      ]
 
-    #train
-    history = model.fit_generator(train_generator, epochs=args.finetune_epochs1, steps_per_epoch=args.finetune_steps_per_epoch1, 
-      validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch1/10, 
-      callbacks=callbacks,
-      workers=args.workers)
+      #train
+      history = model.fit_generator(train_generator, epochs=args.finetune_epochs1, steps_per_epoch=args.finetune_steps_per_epoch1, 
+        validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch1/10, 
+        callbacks=callbacks,
+        workers=args.workers)
 
-    #save and print results
-    model.save(finetune_output_model1)
-    tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir1)  
+      #save and print results
+      model.save(finetune_output_model1)
+      tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir1)  
 
-    utils.print_history(history)
-    print(K.eval(model.optimizer.lr))
+      utils.print_history(history)
+      print(K.eval(model.optimizer.lr))
 
-    #continue training using SGD
-    model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr2, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+    if args.finetune_epochs2 > 0:
+      print('Finetune using SGD...')
+      #continue training using SGD
+      model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr2, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
-    callbacks = [
-      tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=4, min_lr=args.finetune_min_lr),
-      tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model2,monitor='val_loss',save_best_only=True),
-      tf.keras.callbacks.EarlyStopping(patience=16, monitor='val_loss'),
-      tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log2)
-    ]
+      callbacks = [
+        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=4, min_lr=args.finetune_min_lr),
+        tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model2,monitor='val_loss',save_best_only=True),
+        tf.keras.callbacks.EarlyStopping(patience=16, monitor='val_loss'),
+        tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log2)
+      ]
 
-    #train
-    history = model.fit_generator(train_generator, epochs=args.finetune_epochs2, steps_per_epoch=args.finetune_steps_per_epoch2, 
-      validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch2/10, 
-      callbacks=callbacks,
-      workers=args.workers)
+      #train
+      history = model.fit_generator(train_generator, epochs=args.finetune_epochs2, steps_per_epoch=args.finetune_steps_per_epoch2, 
+        validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch2/10, 
+        callbacks=callbacks,
+        workers=args.workers)
 
-    #save and print results
-    model.save(finetune_output_model2)
-    tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir2)  
+      #save and print results
+      model.save(finetune_output_model2)
+      tf.contrib.saved_model.save_keras_model(model, finetune_savedmodel_output_dir2)  
 
-    utils.print_history(history)
-    print(K.eval(model.optimizer.lr))
+      utils.print_history(history)
+      print(K.eval(model.optimizer.lr))
 
   exec_time = time.time() - start
   print("[", timestr, "] exec time: ", exec_time)
