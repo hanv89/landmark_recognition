@@ -14,7 +14,7 @@ from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout, BatchNormalization
 from tensorflow.keras import backend as K
 
 import matplotlib.pyplot as plt
