@@ -45,6 +45,9 @@ parser.add_argument('--pretrained_model', type = str, help = 'Pretrained model, 
 parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2', 'nasnetmobile', 'nasnetlarge', 'inceptionresnet_v2'], type = str, help = 'Network structure')
 parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer to freeze in finetune')
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
+parser.add_argument('--dense_layers', default=1, type = int, help = 'Number of dense')
+parser.add_argument('--dense1', default=1280, type = int, help = 'Number of node in first dense')
+parser.add_argument('--dense2', default=1280, type = int, help = 'Number of node in second dense')
 
 #Train parameters
 parser.add_argument('--batch', default=64, type = int, help = 'batch size')
@@ -73,8 +76,10 @@ parser.add_argument('--rotate', type=int, default=20)
 parser.add_argument('--channel', type=float, default=30)
 parser.add_argument('--crop', type=float, default=0)
 
-parser.add_argument('--dropout', type=float, default=0.0)
-parser.add_argument('--l2', type=float, default=0.01)
+parser.add_argument('--dropout1', type=float, default=0.0)
+parser.add_argument('--l21', type=float, default=0.0)
+parser.add_argument('--dropout2', type=float, default=0.0)
+parser.add_argument('--l22', type=float, default=0.0)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -215,8 +220,12 @@ if not args.load_model and not args.mode == 'finetune':
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
   x = BatchNormalization()(x)
-  x = Dense(1024, activation='relu', kernel_regularizer=l2(args.l2))(x)
-  x = Dropout(rate=args.dropout)(x)
+  x = Dense(args.dense1, activation='relu', kernel_regularizer=l2(args.l21))(x)
+  x = Dropout(rate=args.dropout1)(x)
+  if args.dense_layers >= 2:
+    x = BatchNormalization()(x)
+    x = Dense(args.dense2, activation='relu', kernel_regularizer=l2(args.l22))(x)
+    x = Dropout(rate=args.dropout2)(x)
   predictions = Dense(class_count, activation='softmax')(x)
   model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -250,7 +259,7 @@ else:
 
     #train
     history = model.fit_generator(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
-      validation_data=validation_generator, validation_steps=args.train_steps_per_epoch/10, 
+      validation_data=validation_generator, validation_steps=len(validation_generator), 
       callbacks=callbacks,
       workers=args.workers)
 
@@ -286,7 +295,7 @@ else:
 
       #train
       history = model.fit_generator(train_generator, epochs=args.finetune_epochs1, steps_per_epoch=args.finetune_steps_per_epoch1, 
-        validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch1/10, 
+        validation_data=validation_generator, validation_steps=len(validation_generator), 
         callbacks=callbacks,
         workers=args.workers)
 
@@ -311,7 +320,7 @@ else:
 
       #train
       history = model.fit_generator(train_generator, epochs=args.finetune_epochs2, steps_per_epoch=args.finetune_steps_per_epoch2, 
-        validation_data=validation_generator, validation_steps=args.finetune_steps_per_epoch2/10, 
+        validation_data=validation_generator, validation_steps=len(validation_generator), 
         callbacks=callbacks,
         workers=args.workers)
 
