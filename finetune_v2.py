@@ -56,7 +56,7 @@ parser.add_argument('--train_epochs', default=2, type = int, help = 'number of t
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
 parser.add_argument('--finetune_lr1', default=0.0001, type = float, help = 'finetune adam learning rate')
 parser.add_argument('--finetune_lr2', default=0.0002, type = float, help = 'finetune SGD learning rate')
-parser.add_argument('--finetune_min_lr', default=0.00001, type = float, help = 'finetune min learning rate')
+parser.add_argument('--finetune_min_lr', default=0.000001, type = float, help = 'finetune min learning rate')
 parser.add_argument('--finetune_lr_decay', default=0.5, type = float, help = 'finetune learning rate decay if val_loss does not decrease')
 parser.add_argument('--finetune_epochs1', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch1', default=5, type = int, help = 'number of step per finetune epoch')
