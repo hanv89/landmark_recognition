@@ -155,7 +155,7 @@ if args.crop > 0:
     batch_size=args.batch,
     class_mode='sparse',
     shuffle=True,
-    seed=42,
+    seed=1,
     subset='training'
   ), dim)
 else:
@@ -166,7 +166,7 @@ else:
     batch_size=args.batch,
     class_mode='sparse',
     shuffle=True,
-    seed=42,
+    seed=1,
     subset='training'
   )
 
@@ -177,7 +177,7 @@ validation_generator = train_datagen.flow_from_directory(
   batch_size=args.batch,
   class_mode='sparse',
   shuffle=True,
-  seed=42,
+  seed=1,
   subset='validation'
 )
 
