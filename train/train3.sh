@@ -8,5 +8,5 @@ python3 finetune_v2.py --data=./data/TrainVal/ --mode=train_then_finetune --net=
                     --train_lr=0.0001 --train_epochs=5 --train_steps_per_epoch=400 \
                     --finetune_lr1=0.0001 --finetune_epochs1=0 --finetune_steps_per_epoch1=400 \
                     --finetune_lr2=0.0001 --finetune_epochs2=60 --finetune_steps_per_epoch2=400 \
-                    --freeze=139 --dropout1=0.5 --l21=0.01  \
+                    --freeze=139 --dropout1=0.5 --l21=0.1  \
                     --batch=64
