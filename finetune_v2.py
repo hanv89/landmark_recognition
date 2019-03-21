@@ -14,7 +14,7 @@ from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout, BatchNormalization
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input, Dropout, BatchNormalization, Activation
 from tensorflow.keras import backend as K
 
 import matplotlib.pyplot as plt
@@ -219,10 +219,14 @@ if not args.load_model and not args.mode == 'finetune':
 
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
-  x = Dense(args.dense1, activation='relu', kernel_regularizer=l2(args.l21))(x)
+  x = Dense(args.dense1, use_bias=False, kernel_regularizer=l2(args.l21))(x)
+  x = BatchNormalization()(x)
+  x = Activation('relu')(x)
   x = Dropout(rate=args.dropout1)(x)
   if args.dense_layers >= 2:
-    x = Dense(args.dense2, activation='relu', kernel_regularizer=l2(args.l22))(x)
+    x = Dense(args.dense2, use_bias=False, kernel_regularizer=l2(args.l22))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = Dropout(rate=args.dropout2)(x)
   predictions = Dense(class_count, activation='softmax')(x)
   model = Model(inputs=base_model.input, outputs=predictions)
