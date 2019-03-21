@@ -233,6 +233,7 @@ if not args.load_model and not args.mode == 'finetune':
     layer.trainable = False
 
 elif args.load_model and ( args.mode == 'print' or  args.mode == 'finetune' ):
+  print('Loading model ', args.load_model, '...')
   model = keras.models.load_model(args.load_model)
 else:
   print('Not supported mode ', args.mode, ' when args.load_model is ', args.load_model)
