@@ -219,11 +219,9 @@ if not args.load_model and not args.mode == 'finetune':
 
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
-  x = BatchNormalization()(x)
   x = Dense(args.dense1, activation='relu', kernel_regularizer=l2(args.l21))(x)
   x = Dropout(rate=args.dropout1)(x)
   if args.dense_layers >= 2:
-    x = BatchNormalization()(x)
     x = Dense(args.dense2, activation='relu', kernel_regularizer=l2(args.l22))(x)
     x = Dropout(rate=args.dropout2)(x)
   predictions = Dense(class_count, activation='softmax')(x)
