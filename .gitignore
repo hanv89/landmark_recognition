@@ -111,3 +111,4 @@ zaloai_models/
 deprecated/my_resnet50/
 uploads/
 output/
+*.layers
