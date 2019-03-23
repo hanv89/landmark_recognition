@@ -55,7 +55,7 @@ train_generator = train_datagen.flow_from_directory(
   batch_size=32,
   class_mode='sparse',
   shuffle=True,
-  seed=42,
+  seed=1,
   subset='training'
 )
 validation_generator = train_datagen.flow_from_directory(
@@ -65,7 +65,7 @@ validation_generator = train_datagen.flow_from_directory(
   batch_size=32,
   class_mode='sparse',
   shuffle=True,
-  seed=42,
+  seed=1,
   subset='validation'
 )
 # while True:
