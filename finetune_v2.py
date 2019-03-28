@@ -181,7 +181,6 @@ validation_generator = train_datagen.flow_from_directory(
   subset='validation'
 )
 
-
 with open(output_label + ".csv", 'w') as outfile:  
   outfile.write('\n'.join(validation_generator.class_indices))
 
