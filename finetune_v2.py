@@ -75,11 +75,14 @@ parser.add_argument('--height', type=float, default=0.2)
 parser.add_argument('--rotate', type=int, default=20)
 parser.add_argument('--channel', type=float, default=30)
 parser.add_argument('--crop', type=float, default=0)
+parser.add_argument('--seed', type=int, default=1)
 
 parser.add_argument('--dropout1', type=float, default=0.0)
 parser.add_argument('--l21', type=float, default=0.0)
 parser.add_argument('--dropout2', type=float, default=0.0)
 parser.add_argument('--l22', type=float, default=0.0)
+parser.add_argument('--bn1', type=bool, default=True)
+parser.add_argument('--bn2', type=bool, default=True)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -155,7 +158,7 @@ if args.crop > 0:
     batch_size=args.batch,
     class_mode='sparse',
     shuffle=True,
-    seed=1,
+    seed=args.seed,
     subset='training'
   ), dim)
 else:
@@ -166,7 +169,7 @@ else:
     batch_size=args.batch,
     class_mode='sparse',
     shuffle=True,
-    seed=1,
+    seed=args.seed,
     subset='training'
   )
 
@@ -177,7 +180,7 @@ validation_generator = train_datagen.flow_from_directory(
   batch_size=args.batch,
   class_mode='sparse',
   shuffle=True,
-  seed=1,
+  seed=args.seed,
   subset='validation'
 )
 
@@ -219,12 +222,14 @@ if not args.load_model and not args.mode == 'finetune':
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
   x = Dense(args.dense1, use_bias=False, kernel_regularizer=l2(args.l21))(x)
-  x = BatchNormalization()(x)
+  if args.bn1:
+    x = BatchNormalization()(x)
   x = Activation('relu')(x)
   x = Dropout(rate=args.dropout1)(x)
   if args.dense_layers >= 2:
     x = Dense(args.dense2, use_bias=False, kernel_regularizer=l2(args.l22))(x)
-    x = BatchNormalization()(x)
+    if args.bn2:
+      x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = Dropout(rate=args.dropout2)(x)
   predictions = Dense(class_count, activation='softmax')(x)
