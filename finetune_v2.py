@@ -77,6 +77,7 @@ parser.add_argument('--channel', type=float, default=30)
 parser.add_argument('--crop', type=float, default=0)
 parser.add_argument('--seed', type=int, default=1)
 
+parser.add_argument('--dropout0', type=float, default=0.0)
 parser.add_argument('--dropout1', type=float, default=0.0)
 parser.add_argument('--l21', type=float, default=0.0)
 parser.add_argument('--dropout2', type=float, default=0.0)
@@ -221,6 +222,7 @@ if not args.load_model and not args.mode == 'finetune':
 
   x = base_model.output
   x = GlobalAveragePooling2D()(x)
+  x = Dropout(rate=args.dropout0)(x)
   x = Dense(args.dense1, use_bias=False, kernel_regularizer=l2(args.l21))(x)
   if args.bn1:
     x = BatchNormalization()(x)
