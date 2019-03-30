@@ -32,6 +32,8 @@ parser.add_argument('--width', type=float, default=0)
 parser.add_argument('--height', type=float, default=0)
 parser.add_argument('--rotate', type=int, default=0)
 parser.add_argument('--channel', type=float, default=0)
+parser.add_argument('--fill', type=str, default='reflect')
+parser.add_argument('--cval', type=int, default=0)
 
 args = parser.parse_args()
 
@@ -46,7 +48,8 @@ train_datagen = image.ImageDataGenerator(
   horizontal_flip=args.horizontal_flip,
   channel_shift_range=args.channel,
   validation_split=0.1,
-  fill_mode='reflect')
+  fill_mode=args.fill,
+  cval=args.cval)
 
 train_generator = train_datagen.flow_from_directory(
   directory=args.data,
