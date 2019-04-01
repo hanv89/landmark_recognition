@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser(description='Landmark Detection Training then F
 
 #Directories
 parser.add_argument('--data', default='./data', type = str, help = 'Data dir')
+parser.add_argument('--class_index', default='./output/label_name.csv', type = str, help = 'index map')
 #Augmentation parameters
 parser.add_argument('--horizontal_flip', type=bool, default=True)
 parser.add_argument('--zoom_in', type=float, default=0)
@@ -71,26 +72,30 @@ validation_generator = train_datagen.flow_from_directory(
   seed=1,
   subset='validation'
 )
+
+label_ns = [line.rstrip('\n') for line in open(args.class_index)]
+print(label_ns)
+
 # while True:
 images, labels = next(train_generator)
 plt.figure(figsize=(100,200))
-for i in range (0,32):
-    plt.subplot(4,8,i+1)
+for i in range (0,12):
+    plt.subplot(4,3,i+1)
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
     plt.imshow(images[i])
-    plt.xlabel(labels[i])
+    plt.xlabel(label_ns[int(labels[i])])
 plt.show()
 
 
 images, labels = next(validation_generator)
 plt.figure(figsize=(100,200))
-for i in range (0,32):
-    plt.subplot(4,8,i+1)
+for i in range (0,12):
+    plt.subplot(4,3,i+1)
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
     plt.imshow(images[i])
-    plt.xlabel(labels[i])
+    plt.xlabel(label_ns[int(labels[i])])
 plt.show()

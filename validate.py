@@ -110,6 +110,12 @@ for index, row in data.iterrows():
     
     if truthLabel == top_labels[0] :
         acc+=1    
+
+    # if '991' in top_labels[:3] :
+    #     print('[BK][', row['id'], '] Predicted: ', top_labels, ', Confident=', top_confidents, ", truth=", truthLabel)
+    #     mid_time = time.time() - start
+    #     print('Progress after ',mid_time,': acc=', acc, ', top3=', top3, ', top5=', top5, ' / total=', total)
+    #     sys.stdout.flush()
     # Predicted: [(u'n02504013', u'Indian_elephant', 0.82658225), (u'n01871265', u'tusker', 0.1122357), (u'n02504458', u'African_elephant', 0.061040461)]
 
 exec_time = time.time() - start
