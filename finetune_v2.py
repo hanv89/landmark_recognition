@@ -27,6 +27,7 @@ import time
 import math
 import sys
 import os
+from collections import Counter
 
 timestr = time.strftime('%Y%m%d-%H%M%S')
 print('Training stated at ' ,timestr)
@@ -84,6 +85,8 @@ parser.add_argument('--dropout2', type=float, default=0.0)
 parser.add_argument('--l22', type=float, default=0.0)
 parser.add_argument('--bn1', type=bool, default=True)
 parser.add_argument('--bn2', type=bool, default=True)
+
+parser.add_argument('--use_class_weight', type=bool, default=False)
 args = parser.parse_args()
 
 output_dir = args.output + '/' + args.net + '-' + timestr
@@ -191,6 +194,13 @@ with open(output_label + ".csv", 'w') as outfile:
 class_count = len(validation_generator.class_indices)
 class_index = {v: k for k, v in validation_generator.class_indices.items()}
 
+class_weights = None
+if args.use_class_weight:
+  counter = Counter(train_generator.classes)                          
+  max_val = float(max(counter.values()))       
+  class_weights = {class_id : max_val/num_images for class_id, num_images in counter.items()}                     
+
+
 #create model
 if not args.load_model and not args.mode == 'finetune':
   # create the base pre-trained model
@@ -270,7 +280,8 @@ else:
     history = model.fit_generator(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
       validation_data=validation_generator, validation_steps=len(validation_generator), 
       callbacks=callbacks,
-      workers=args.workers)
+      workers=args.workers,
+      class_weight=class_weights)
 
     #save and print results
     model.save(train_output_model)
@@ -306,7 +317,8 @@ else:
       history = model.fit_generator(train_generator, epochs=args.finetune_epochs1, steps_per_epoch=args.finetune_steps_per_epoch1, 
         validation_data=validation_generator, validation_steps=len(validation_generator), 
         callbacks=callbacks,
-        workers=args.workers)
+        workers=args.workers,
+        class_weight=class_weights)
 
       #save and print results
       model.save(finetune_output_model1)
@@ -331,7 +343,8 @@ else:
       history = model.fit_generator(train_generator, epochs=args.finetune_epochs2, steps_per_epoch=args.finetune_steps_per_epoch2, 
         validation_data=validation_generator, validation_steps=len(validation_generator), 
         callbacks=callbacks,
-        workers=args.workers)
+        workers=args.workers,
+        class_weight=class_weights)
 
       #save and print results
       model.save(finetune_output_model2)

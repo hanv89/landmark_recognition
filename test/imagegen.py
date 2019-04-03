@@ -16,6 +16,7 @@ import time
 import math
 import sys
 import os
+from collections import Counter
 
 # tf.enable_eager_execution() #only for test run
 
@@ -99,3 +100,8 @@ for i in range (0,12):
     plt.imshow(images[i])
     plt.xlabel(label_ns[int(labels[i])])
 plt.show()
+
+counter = Counter(train_generator.classes)                          
+max_val = float(max(counter.values()))       
+class_weights = {class_id : max_val/num_images for class_id, num_images in counter.items()}    
+print(class_weights)  

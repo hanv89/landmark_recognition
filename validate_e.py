@@ -33,8 +33,8 @@ labels = [line.rstrip('\n') for line in open(args.class_index)]
 print(labels)
 
 models224 = []
-# models224.append(keras.models.load_model("output/nasnetmobile-20190325-170550/finetune/sgd/check_point.h5"))
-models224.append(keras.models.load_model("models/nasnetmobile-20190322-172657/finetune/sgd/check_point.h5"))
+models224.append(keras.models.load_model("output/nasnetmobile-20190402-084224/finetune/sgd/check_point.h5"))
+# models224.append(keras.models.load_model("models/nasnetmobile-20190322-172657/finetune/sgd/check_point.h5"))
 # models224.append(tf.contrib.saved_model.load_keras_model("output/mobilenet_v2-20190317-011215/finetune/sgd/savedmodel/1552791197"))
 # models224.append(tf.contrib.saved_model.load_keras_model("output/mobilenet_v2-20190317-095325/finetune/sgd/savedmodel/1552824748"))
 models224.append(tf.contrib.saved_model.load_keras_model("models/mobilenet_v2-20190317-191236/finetune/sgd/savedmodel/1552853052"))
