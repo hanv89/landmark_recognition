@@ -43,22 +43,26 @@ parser.add_argument('--load_model', type = str, help = 'Saved model in h5 format
 parser.add_argument('--pretrained_model', type = str, help = 'Pretrained model, eg: ./pretrained/model.h5')
 
 #Network configs
-parser.add_argument('--net', default='inception_v3', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2', 'nasnetmobile', 'nasnetlarge', 'inceptionresnet_v2'], type = str, help = 'Network structure')
-parser.add_argument('--freeze', default=-3, type = int, help = 'Number of layer to freeze in finetune')
+parser.add_argument('--pretrained_weights', type = str, default='imagenet', help = 'Pretrained weights, eg: imagenet OR None')
+parser.add_argument('--net', default='nasnetmobile', choices=['resnet_50', 'inception_v3', 'xception', 'densenet_121', 'densenet_169', 'densenet_201', 'mobilenet_v2', 'nasnetmobile', 'nasnetlarge', 'inceptionresnet_v2'], type = str, help = 'Network structure')
+parser.add_argument('--freeze', default=-5, type = int, help = 'Number of layer to freeze in finetune')
 parser.add_argument('--mode', default='train_then_finetune', choices=['print', 'train', 'finetune', 'train_then_finetune'], type = str, help = 'Train mode')
 parser.add_argument('--dense_layers', default=1, type = int, help = 'Number of dense')
-parser.add_argument('--dense1', default=1280, type = int, help = 'Number of node in first dense')
-parser.add_argument('--dense2', default=1280, type = int, help = 'Number of node in second dense')
+parser.add_argument('--dense1', default=1024, type = int, help = 'Number of node in first dense')
+parser.add_argument('--dense2', default=1024, type = int, help = 'Number of node in second dense')
 
 #Train parameters
-parser.add_argument('--batch', default=64, type = int, help = 'batch size')
+parser.add_argument('--batch', default=32, type = int, help = 'batch size')
 parser.add_argument('--train_lr', default=0.001, type = float, help = 'training learning rate')
 parser.add_argument('--train_epochs', default=2, type = int, help = 'number of train epoch')
 parser.add_argument('--train_steps_per_epoch', default=5, type = int, help = 'number of step per train epoch')
 parser.add_argument('--finetune_lr1', default=0.0001, type = float, help = 'finetune adam learning rate')
-parser.add_argument('--finetune_lr2', default=0.0002, type = float, help = 'finetune SGD learning rate')
-parser.add_argument('--finetune_min_lr', default=0.000001, type = float, help = 'finetune min learning rate')
-parser.add_argument('--finetune_lr_decay', default=0.5, type = float, help = 'finetune learning rate decay if val_loss does not decrease')
+parser.add_argument('--finetune_lr2', default=0.001, type = float, help = 'finetune SGD learning rate')
+parser.add_argument('--finetune_sgd_beta', default=0.9, type = float, help = 'momentum')
+parser.add_argument('--finetune_min_lr', default=0.000000001, type = float, help = 'finetune min learning rate')
+parser.add_argument('--finetune_lr_decay', default=0.1, type = float, help = 'finetune learning rate decay if val_loss does not decrease')
+parser.add_argument('--finetune_decay_patience', default=12, type = int)
+parser.add_argument('--finetune_stop_patience', default=48, type = int)
 parser.add_argument('--finetune_epochs1', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch1', default=5, type = int, help = 'number of step per finetune epoch')
 parser.add_argument('--finetune_epochs2', default=2, type = int, help = 'number of finetune epoch')
@@ -75,10 +79,9 @@ parser.add_argument('--width', type=float, default=0.2)
 parser.add_argument('--height', type=float, default=0.2)
 parser.add_argument('--rotate', type=int, default=20)
 parser.add_argument('--channel', type=float, default=30)
-parser.add_argument('--crop', type=float, default=0)
 parser.add_argument('--seed', type=int, default=1)
 
-parser.add_argument('--dropout0', type=float, default=0.0)
+parser.add_argument('--dropout0', type=float, default=0.5)
 parser.add_argument('--dropout1', type=float, default=0.0)
 parser.add_argument('--l21', type=float, default=0.0)
 parser.add_argument('--dropout2', type=float, default=0.0)
@@ -140,6 +143,11 @@ else:
   print('Not supported network type')
   sys.exit()
 
+weights = args.pretrained_weights
+print('Using pretrained weights from', weights)
+if args.pretrained_weights == 'None':
+  weights = None
+
 #load data
 train_datagen = image.ImageDataGenerator(
   rescale=1./255,
@@ -153,29 +161,16 @@ train_datagen = image.ImageDataGenerator(
   validation_split=args.validation_split,
   fill_mode='reflect')
 
-if args.crop > 0:
-  before_crop_dim = int(dim/(1-args.crop))
-  train_generator = utils.crop_generator(train_datagen.flow_from_directory(
-    directory=args.data,
-    target_size=(before_crop_dim, before_crop_dim),
-    color_mode='rgb',
-    batch_size=args.batch,
-    class_mode='sparse',
-    shuffle=True,
-    seed=args.seed,
-    subset='training'
-  ), dim)
-else:
-  train_generator = train_datagen.flow_from_directory(
-    directory=args.data,
-    target_size=(dim, dim),
-    color_mode='rgb',
-    batch_size=args.batch,
-    class_mode='sparse',
-    shuffle=True,
-    seed=args.seed,
-    subset='training'
-  )
+train_generator = train_datagen.flow_from_directory(
+  directory=args.data,
+  target_size=(dim, dim),
+  color_mode='rgb',
+  batch_size=args.batch,
+  class_mode='sparse',
+  shuffle=True,
+  seed=args.seed,
+  subset='training'
+)
 
 validation_generator = train_datagen.flow_from_directory(
   directory=args.data,
@@ -207,25 +202,25 @@ if not args.load_model and not args.mode == 'finetune':
   if args.pretrained_model: 
     base_model = keras.models.load_model(args.pretrained_model)
   elif args.net == 'inception_v3':
-    base_model = InceptionV3(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = InceptionV3(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'xception':
-    base_model = Xception(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = Xception(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'resnet_50':
-    base_model = ResNet50(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = ResNet50(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'densenet_121':
-    base_model = DenseNet121(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = DenseNet121(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'densenet_169':
-    base_model = DenseNet169(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = DenseNet169(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'densenet_201':
-    base_model = DenseNet201(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = DenseNet201(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'mobilenet_v2':
-    base_model = MobileNetV2(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = MobileNetV2(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'nasnetlarge':
-    base_model = NASNetLarge(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = NASNetLarge(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'nasnetmobile':
-    base_model = NASNetMobile(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = NASNetMobile(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   elif args.net == 'inceptionresnet_v2':
-    base_model = InceptionResNetV2(input_shape=(dim, dim, 3), weights='imagenet', include_top=False)
+    base_model = InceptionResNetV2(input_shape=(dim, dim, 3), weights=weights, include_top=False)
   else:
     print('Not supported network type')
     sys.exit()
@@ -307,9 +302,9 @@ else:
       model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.finetune_lr1), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
       callbacks = [
-        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=12, min_lr=args.finetune_min_lr, cooldown=1),
+        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=args.finetune_decay_patience, min_lr=args.finetune_min_lr, cooldown=1),
         tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model1,monitor='val_loss',save_best_only=True),
-        tf.keras.callbacks.EarlyStopping(patience=48, monitor='val_loss'),
+        tf.keras.callbacks.EarlyStopping(patience=args.finetune_stop_patience, monitor='val_loss'),
         tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log1)
       ]
 
@@ -330,12 +325,12 @@ else:
     if args.finetune_epochs2 > 0:
       print('Finetune using SGD...')
       #continue training using SGD
-      model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr2, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+      model.compile(optimizer=tf.keras.optimizers.SGD(lr=args.finetune_lr2, momentum=args.finetune_sgd_beta), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
       callbacks = [
-        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=12, min_lr=args.finetune_min_lr, cooldown=1),
+        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=args.finetune_lr_decay, patience=args.finetune_decay_patience, min_lr=args.finetune_min_lr, cooldown=1),
         tf.keras.callbacks.ModelCheckpoint(finetune_check_point_model2,monitor='val_loss',save_best_only=True),
-        tf.keras.callbacks.EarlyStopping(patience=48, monitor='val_loss'),
+        tf.keras.callbacks.EarlyStopping(patience=args.finetune_stop_patience, monitor='val_loss'),
         tf.keras.callbacks.TensorBoard(log_dir=finetune_output_log2)
       ]
 
