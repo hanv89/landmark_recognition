@@ -34,7 +34,7 @@ print('Training stated at ' ,timestr)
 
 # tf.enable_eager_execution() #only for test run
 
-parser = argparse.ArgumentParser(description='Landmark Detection Training then Finetune')
+parser = argparse.ArgumentParser(description='Landmark Recognition Training then Finetune')
 
 #Directories
 parser.add_argument('--data', default='./data', type = str, help = 'Data dir')
@@ -63,7 +63,7 @@ parser.add_argument('--finetune_min_lr', default=0.000000001, type = float, help
 parser.add_argument('--finetune_lr_decay', default=0.1, type = float, help = 'finetune learning rate decay if val_loss does not decrease')
 parser.add_argument('--finetune_decay_patience', default=12, type = int)
 parser.add_argument('--finetune_stop_patience', default=48, type = int)
-parser.add_argument('--finetune_epochs1', default=2, type = int, help = 'number of finetune epoch')
+parser.add_argument('--finetune_epochs1', default=0, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch1', default=5, type = int, help = 'number of step per finetune epoch')
 parser.add_argument('--finetune_epochs2', default=2, type = int, help = 'number of finetune epoch')
 parser.add_argument('--finetune_steps_per_epoch2', default=5, type = int, help = 'number of step per finetune epoch')

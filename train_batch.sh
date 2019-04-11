@@ -1,3 +1,4 @@
+#!/bin/bash 
 ./train/train1.sh
 ./train/train2.sh
 ./train/train3.sh
