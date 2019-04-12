@@ -263,26 +263,27 @@ else:
     json.dump(class_index, outfile)
     
   if args.mode.startswith('train'):    
-    print('Mode ',args.mode,': Training...')
-    model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.train_lr), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
+    if args.train_epochs > 0:
+      print('Mode ',args.mode,': Training...')
+      model.compile(optimizer=tf.keras.optimizers.Adam(lr=args.train_lr), loss='sparse_categorical_crossentropy', metrics=['accuracy']) #, utils.top_3_accuracy
 
-    callbacks = [
-      tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
-      tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
-    ]
+      callbacks = [
+        tf.keras.callbacks.EarlyStopping(patience=args.train_epochs/4, monitor='val_loss'),
+        tf.keras.callbacks.TensorBoard(log_dir=train_output_log)
+      ]
 
-    #train
-    history = model.fit_generator(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
-      validation_data=validation_generator, validation_steps=len(validation_generator), 
-      callbacks=callbacks,
-      workers=args.workers,
-      class_weight=class_weights)
+      #train
+      history = model.fit_generator(train_generator, epochs=args.train_epochs, steps_per_epoch=args.train_steps_per_epoch, 
+        validation_data=validation_generator, validation_steps=len(validation_generator), 
+        callbacks=callbacks,
+        workers=args.workers,
+        class_weight=class_weights)
 
-    #save and print results
-    model.save(train_output_model)
-    tf.contrib.saved_model.save_keras_model(model, train_savedmodel_output_dir)    
+      #save and print results
+      model.save(train_output_model)
+      tf.contrib.saved_model.save_keras_model(model, train_savedmodel_output_dir)    
 
-    utils.print_history(history)
+      utils.print_history(history)
 
   if args.mode.endswith('finetune'):    
     print('Mode ',args.mode,': Finetune...')
