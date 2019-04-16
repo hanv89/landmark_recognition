@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 
+print('finetune version 3')
 print(tf.VERSION)
 print(tf.keras.__version__)
 
