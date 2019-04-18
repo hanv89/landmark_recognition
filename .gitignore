@@ -113,5 +113,3 @@ uploads/
 output/
 *.layers
 models/
-data
-stanford-car-dataset
