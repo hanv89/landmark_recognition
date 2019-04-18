@@ -102,7 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
+data
 data/
 deprecated/my_inception_v3/
 deprecated/my_basic_cnn/
