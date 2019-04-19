@@ -17,6 +17,6 @@ if args.output:
     for uri in uris:
         filepath, f = os.path.split(uri)
         fn, ext = os.path.splitext(f)
-        fns.append(fn + ',991')
+        fns.append(fn + ',993')
     with open(args.output, 'w') as outfile:  
         outfile.write('\n'.join(fns))

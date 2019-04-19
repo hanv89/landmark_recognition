@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description='Landmark Detection Training then F
 parser.add_argument('--input', default='./data', type = str, help = 'input dir')
 parser.add_argument('--output', type = str, help = 'output dir')
 parser.add_argument('--type', default='jpg', type = str, help = 'file type')
+parser.add_argument('--rn', default='a', type = str, help = 'rename')
 
 args = parser.parse_args()
 if args.output:
